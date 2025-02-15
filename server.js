@@ -10,8 +10,8 @@ const STEAM_ID = "76561198021323440";
 
 // 🔥 **Cache für gespeicherte Daten**
 let cachedData = {
-    premierRating: "Lädt...",
-    premierWins: "Lädt...",
+    premierRating: "LÄDT...",
+    premierWins: "LÄDT...",
     lastUpdated: null
 };
 
@@ -34,7 +34,7 @@ async function startBrowser() {
         });
         return browser;
     } catch (error) {
-        console.error("❌ Fehler beim Starten von Puppeteer:", error);
+        console.error("❌ FEHLER BEIM STARTEN VON PUPPETEER:", error);
         throw error;
     }
 }
@@ -78,32 +78,32 @@ async function scrapePremierStats() {
         });
 
         if (premierData.rating && premierData.wins) {
-            console.log(`✅ Premier-Rating: ${premierData.rating}`);
-            console.log(`✅ Premier-Wins: ${premierData.wins}`);
+            console.log(`✅ PREMIER-RATING: ${premierData.rating}`);
+            console.log(`✅ PREMIER-WINS: ${premierData.wins}`);
 
-            // 🏆 **Daten in Cache speichern**
+            // 🏆 **Daten in Cache speichern, mit Uppercase und Tausendertrennzeichen**
             cachedData = {
-                premierRating: premierData.rating,
-                premierWins: premierData.wins,
+                premierRating: formatNumber(premierData.rating).toUpperCase(),
+                premierWins: formatNumber(premierData.wins).toUpperCase(),
                 lastUpdated: new Date()
             };
         } else {
-            console.log("⚠ Keine gültigen Daten gefunden, erneuter Versuch in 1 Minute...");
-            setTimeout(scrapePremierStats, 60 * 1000); // Falls keine Daten, nach 1 Minute erneut versuchen
+            console.log("⚠ KEINE GÜLTIGEN DATEN GEFUNDEN, ERNEUTER VERSUCH IN 1 MINUTE...");
+            setTimeout(scrapePremierStats, 60 * 1000);
         }
 
         await browser.close();
     } catch (error) {
-        console.error("❌ Fehler beim Scrapen:", error);
+        console.error("❌ FEHLER BEIM SCRAPEN:", error);
         if (browser) await browser.close();
-        setTimeout(scrapePremierStats, 60 * 1000); // Falls Scraping fehlschlägt, nochmal nach 1 Minute versuchen
+        setTimeout(scrapePremierStats, 60 * 1000);
     }
 }
 
 // 🔄 **Automatische Updates alle 30 Minuten**
 async function autoUpdate() {
-    await scrapePremierStats(); // Erstes Scraping sofort starten
-    setInterval(scrapePremierStats, 30 * 60 * 1000); // Danach alle 30 Minuten
+    await scrapePremierStats();
+    setInterval(scrapePremierStats, 30 * 60 * 1000);
 }
 autoUpdate();
 
@@ -138,13 +138,13 @@ app.get("/obs-overlay", (req, res) => {
                             document.getElementById("rating").innerText = data.premierRating;
                             document.getElementById("wins").innerText = data.premierWins;
                         })
-                        .catch(err => console.error("❌ Fehler beim Abrufen der Daten:", err));
+                        .catch(err => console.error("❌ FEHLER BEIM ABRUFEN DER DATEN:", err));
                 }
-                setInterval(updateData, 30000); // Alle 30 Sekunden aktualisieren
+                setInterval(updateData, 30000);
             </script>
         </head>
         <body>
-            <span>Rank: <span id="rating" class="rating">${cachedData.premierRating}</span> | Wins: <span id="wins" class="wins">${cachedData.premierWins}</span>/125</span>
+            <span>ELO: <span id="rating" class="rating">${cachedData.premierRating}</span> | WINS: <span id="wins" class="wins">${cachedData.premierWins}</span>/125</span>
         </body>
         </html>
     `);
@@ -160,7 +160,7 @@ app.get("/obs-overlay-data", (req, res) => {
 
 // 🎨 **Funktion für Elo-Farben**
 function getEloColor(rating) {
-    const elo = parseInt(rating, 10) || 0;
+    const elo = parseInt(rating.replace(/,/g, ""), 10) || 0;
     if (elo >= 30000) return "rgba(253,215,0,255)";
     if (elo >= 25000) return "rgba(236,74,72,255)";
     if (elo >= 20000) return "rgba(227,20,240,255)";
@@ -170,7 +170,13 @@ function getEloColor(rating) {
     return "rgba(183,199,214,255)";
 }
 
+// 📊 **Funktion zur Formatierung der Zahlen mit Tausendertrennzeichen**
+function formatNumber(num) {
+    if (!num) return "LÄDT...";
+    return parseInt(num, 10).toLocaleString("de-DE");
+}
+
 // 🚀 **Server starten**
 app.listen(PORT, () => {
-    console.log(`🚀 OBS Overlay läuft auf Port ${PORT}`);
+    console.log(`🚀 OBS OVERLAY LÄUFT AUF PORT ${PORT}`);
 });
