@@ -5,20 +5,20 @@ const StealthPlugin = require("puppeteer-extra-plugin-stealth");
 puppeteer.use(StealthPlugin());
 
 const app = express();
-const PORT = process.env.PORT || 443;
+const PORT = process.env.PORT || 3000;
+const STEAM_ID = "76561198021323440";
 
-// 🔥 Cache für gespeicherte Daten
+// Caching der Daten
 let cachedData = {
-    rating: "Lädt...",
-    wins: "Lädt...",
+    premierRating: "Lädt...",
+    premierWins: "Lädt...",
     lastUpdated: null
 };
 
-// 🌍 Scraping-Funktion mit Auto-Update
-async function scrapeCSStats() {
-    let browser;
+async function startBrowser() {
+    console.log("🔄 Starte Puppeteer...");
     try {
-        browser = await puppeteer.launch({
+        const browser = await puppeteer.launch({
             headless: "new",
             executablePath: process.env.PUPPETEER_EXECUTABLE_PATH ||
                 "/usr/bin/google-chrome" ||
@@ -31,14 +31,24 @@ async function scrapeCSStats() {
                 "--disable-dev-shm-usage"
             ]
         });
+        return browser;
+    } catch (error) {
+        console.error("❌ Fehler beim Starten von Puppeteer:", error);
+        throw error;
+    }
+}
 
+async function scrapePremierStats() {
+    let browser;
+    try {
+        browser = await startBrowser();
         const page = await browser.newPage();
+
         await page.setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36");
         await page.setExtraHTTPHeaders({ "accept-language": "en-US,en;q=0.9" });
 
-        const url = `https://csstats.gg/player/76561198021323440`;
+        const url = `https://csstats.gg/player/${STEAM_ID}`;
         console.log(`🌍 Rufe Daten von: ${url}`);
-
         await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60000 });
         await new Promise(resolve => setTimeout(resolve, 5000));
 
@@ -65,96 +75,61 @@ async function scrapeCSStats() {
             return { rating, wins };
         });
 
-        console.log(`✅ Rank: ${premierData.rating}, Wins: ${premierData.wins}`);
+        console.log(`✅ Premier-Rating: ${premierData.rating}`);
+        console.log(`✅ Premier-Wins: ${premierData.wins}`);
 
-        // 🔥 Speichere Daten im Cache
         cachedData = {
-            rating: premierData.rating,
-            wins: premierData.wins,
+            premierRating: premierData.rating,
+            premierWins: premierData.wins,
             lastUpdated: new Date()
         };
 
         await browser.close();
     } catch (error) {
-        console.error("❌ Fehler beim Scrapen der Premier-Daten.", error);
+        console.error("❌ Fehler beim Scrapen:", error);
         if (browser) await browser.close();
     }
 }
 
-// 🔄 **Automatische Updates alle 30 Minuten**
-setInterval(() => {
-    console.log("🔄 Automatische Aktualisierung der Daten...");
-    scrapeCSStats();
-}, 30 * 60 * 1000); // Alle 30 Minuten
+// Automatische Aktualisierung alle 30 Minuten
+setInterval(scrapePremierStats, 30 * 60 * 1000);
+scrapePremierStats();
 
-// **🌍 OBS Overlay-Seite mit Auto-Refresh**
+// API-Endpoint für OBS
 app.get("/obs-overlay", (req, res) => {
     res.send(`
-        <!DOCTYPE html>
-        <html lang="de">
+        <html>
         <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>OBS Overlay</title>
+            <link href="https://fonts.cdnfonts.com/css/counter-strike" rel="stylesheet">
             <style>
-                @font-face {
-                    font-family: 'Counter-Strike';
-                    src: url('https://www.dafont.com/download?file=counter-strike') format('truetype');
-                }
                 body {
                     font-family: 'Counter-Strike', sans-serif;
-                    font-size: 32px;
-                    color: white;
+                    font-size: 36px;
+                    color: ${getEloColor(cachedData.premierRating)};
                     background: transparent;
-                    text-align: left;
-                    padding: 10px;
-                }
-                .rating {
-                    font-weight: bold;
-                }
-                .wins {
-                    color: green;
+                    text-align: center;
                 }
             </style>
-            <script>
-                async function fetchData() {
-                    const response = await fetch('/api/stats');
-                    const data = await response.json();
-                    document.getElementById('rating').innerText = data.rating;
-                    document.getElementById('wins').innerText = data.wins;
-                    setTimeout(fetchData, 30 * 60 * 1000); // 30 Minuten Refresh
-                }
-                window.onload = fetchData;
-            </script>
         </head>
         <body>
-            <span>Rank: <span id="rating" class="rating" style="color: ${getRankColor(cachedData.rating)}">${cachedData.rating}</span></span>
-            <span> | Wins: <span id="wins" class="wins">${cachedData.wins}/125</span></span>
+            <span>Premier Rating: ${cachedData.premierRating} | Wins: ${cachedData.premierWins}/125</span>
         </body>
         </html>
     `);
 });
 
-// **API für OBS-Overlay-Daten**
-app.get("/api/stats", (req, res) => {
-    res.json(cachedData);
-});
-
-// **🚀 Starte den Server**
-app.listen(PORT, () => {
-    console.log(`🚀 Server läuft auf Port ${PORT}`);
-    scrapeCSStats(); // Sofort erstes Scraping starten
-});
-
-// **Rank-Farben basierend auf Elo**
-function getRankColor(rating) {
-    const ratingValue = parseInt(rating, 10);
-    if (isNaN(ratingValue)) return "white";
-    if (ratingValue < 5000) return "rgba(183,199,214,255)";
-    if (ratingValue < 10000) return "rgba(137,187,229,255)";
-    if (ratingValue < 15000) return "rgba(104,125,234,255)";
-    if (ratingValue < 20000) return "rgba(189,106,253,255)";
-    if (ratingValue < 25000) return "rgba(227,20,240,255)";
-    if (ratingValue < 30000) return "rgba(236,74,72,255)";
-    return "rgba(253,215,0,255)";
+function getEloColor(rating) {
+    const elo = parseInt(rating, 10) || 0;
+    if (elo >= 30000) return "rgba(253,215,0,255)";
+    if (elo >= 25000) return "rgba(236,74,72,255)";
+    if (elo >= 20000) return "rgba(227,20,240,255)";
+    if (elo >= 15000) return "rgba(189,106,253,255)";
+    if (elo >= 10000) return "rgba(104,125,234,255)";
+    if (elo >= 5000) return "rgba(137,187,229,255)";
+    return "rgba(183,199,214,255)";
 }
+
+// Server starten
+app.listen(PORT, () => {
+    console.log(`🚀 OBS Overlay läuft auf Port ${PORT}`);
+});
