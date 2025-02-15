@@ -123,12 +123,11 @@ app.get("/obs-overlay", (req, res) => {
                     padding: 10px;
                     text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.75);
                 }
-                /* 🎨 Farbverlauf auf der Zahl */
                 .rating {
+                    font-weight: bold;
                     background: linear-gradient(to bottom, white, ${getEloColor(cachedData.premierRating)});
                     -webkit-background-clip: text;
                     -webkit-text-fill-color: transparent;
-                    font-weight: bold;
                 }
                 .wins {
                     color: #00ff00;
@@ -164,8 +163,8 @@ app.get("/obs-overlay-data", (req, res) => {
 
 // 🎨 **Funktion für Elo-Farben**
 function getEloColor(rating) {
-    if (!rating) return "rgba(183,199,214,255)";
-    const elo = parseInt(rating.replace(/[^0-9]/g, ""), 10) || 0;
+    if (!rating) return "rgba(183,199,214,255)"; // Standardfarbe für ungültige Werte
+    const elo = parseInt(rating.replace(/[^0-9]/g, ""), 10) || 0; // Entfernt alle Nicht-Zahlen für Vergleich
     if (elo >= 30000) return "rgba(253,215,0,255)";
     if (elo >= 25000) return "rgba(236,74,72,255)";
     if (elo >= 20000) return "rgba(227,20,240,255)";
@@ -178,7 +177,7 @@ function getEloColor(rating) {
 // 📊 **Funktion zur Formatierung der Zahlen mit Tausendertrennzeichen**
 function formatNumber(num) {
     if (!num) return "LÄDT...";
-    return parseInt(num.replace(/[^0-9]/g, ""), 10).toLocaleString("de-DE");
+    return parseInt(num.replace(/[^0-9]/g, ""), 10).toLocaleString("de-DE"); // Entfernt falsche Zeichen & formatiert
 }
 
 // 🚀 **Server starten**
