@@ -160,7 +160,8 @@ app.get("/obs-overlay-data", (req, res) => {
 
 // 🎨 **Funktion für Elo-Farben**
 function getEloColor(rating) {
-    const elo = parseInt(rating.replace(/,/g, ""), 10) || 0;
+    if (!rating) return "rgba(183,199,214,255)"; // Standardfarbe für ungültige Werte
+    const elo = parseInt(rating.replace(/[^0-9]/g, ""), 10) || 0; // Entfernt alle Nicht-Zahlen für Vergleich
     if (elo >= 30000) return "rgba(253,215,0,255)";
     if (elo >= 25000) return "rgba(236,74,72,255)";
     if (elo >= 20000) return "rgba(227,20,240,255)";
@@ -173,7 +174,7 @@ function getEloColor(rating) {
 // 📊 **Funktion zur Formatierung der Zahlen mit Tausendertrennzeichen**
 function formatNumber(num) {
     if (!num) return "LÄDT...";
-    return parseInt(num, 10).toLocaleString("de-DE");
+    return parseInt(num.replace(/[^0-9]/g, ""), 10).toLocaleString("de-DE"); // Entfernt falsche Zeichen & formatiert
 }
 
 // 🚀 **Server starten**
