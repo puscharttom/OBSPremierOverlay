@@ -5,49 +5,50 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.get("/", (req, res) => {
-    res.send("CSStatsPremBot ist online! 🚀");
+  res.send("✅ CSStatsBot is running!");
 });
 
 app.get("/csstats/:steamID", async (req, res) => {
-    const steamID = req.params.steamID;
-    console.log(`🔍 Scraping für Steam-ID: ${steamID}`);
+  const steamID = req.params.steamID;
+  console.log(`🔍 Scraping stats for Steam ID: ${steamID}`);
 
-    try {
-        const browser = await puppeteer.launch({
-            headless: "new",
-            executablePath: "/usr/bin/google-chrome-stable", // Render.com Chrome-Pfad
-            args: [
-                "--no-sandbox",
-                "--disable-setuid-sandbox",
-                "--disable-dev-shm-usage",
-                "--disable-gpu",
-                "--disable-software-rasterizer"
-            ]
-        });
+  let browser;
+  try {
+    browser = await puppeteer.launch({
+      executablePath: "/usr/bin/chromium-browser", // Railway's system Chrome
+      headless: true,
+      args: [
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--disable-dev-shm-usage",
+        "--disable-gpu",
+      ],
+    });
 
-        const page = await browser.newPage();
-        const url = `https://csstats.gg/player/${steamID}`;
-        console.log(`🌍 Öffne URL: ${url}`);
+    const page = await browser.newPage();
+    await page.goto(`https://csstats.gg/player/${steamID}`, {
+      waitUntil: "networkidle2",
+    });
 
-        await page.goto(url, { waitUntil: "networkidle2" });
+    const data = await page.evaluate(() => {
+      return {
+        playerName: document.querySelector(".player-name")?.innerText || "N/A",
+        rank: document.querySelector(".rank")?.innerText || "N/A",
+        kdRatio: document.querySelector(".kd-ratio")?.innerText || "N/A",
+      };
+    });
 
-        // Beispiel: Stats auslesen
-        const stats = await page.evaluate(() => {
-            const name = document.querySelector("h1.player-name")?.innerText || "Unbekannt";
-            const rank = document.querySelector(".rank")?.innerText || "Keine Rangdaten";
-            return { name, rank };
-        });
+    console.log(`✅ Scraped data:`, data);
+    res.json({ success: true, data });
 
-        await browser.close();
-        console.log("✅ Scraping erfolgreich:", stats);
-
-        res.json({ success: true, steamID, stats });
-    } catch (error) {
-        console.error("❌ Fehler beim Scraping:", error);
-        res.json({ success: false, message: "Scraping fehlgeschlagen", error: error.toString() });
-    }
+  } catch (error) {
+    console.error("❌ Scraping fehlgeschlagen:", error);
+    res.json({ success: false, message: "Scraping fehlgeschlagen", error: error.toString() });
+  } finally {
+    if (browser) await browser.close();
+  }
 });
 
 app.listen(PORT, () => {
-    console.log(`🚀 Server läuft auf http://localhost:${PORT}`);
+  console.log(`🚀 Server läuft auf Port ${PORT}`);
 });
