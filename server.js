@@ -116,11 +116,12 @@ app.get("/obs-overlay", (req, res) => {
             <style>
                 body {
                     font-family: 'Roboto', sans-serif;
-                    font-size: 50px;
+                    font-size: 36px;
                     color: white;
                     background: transparent;
                     text-align: left;
                     padding: 10px;
+                    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.75); /* ✅ Schatten für besseren Kontrast */
                 }
                 .elo-container {
                     display: inline-block;
@@ -128,17 +129,18 @@ app.get("/obs-overlay", (req, res) => {
                     padding: 10px;
                 }
                 .elo-number {
-                    font-size: 50px;
+                    font-size: 36px;
                     font-weight: bold;
                     position: absolute;
                     top: 50%;
                     left: 50%;
                     transform: translate(-50%, -50%);
                     color: ${getEloColor(cachedData.premierRating)};
+                    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.75); /* ✅ Schatten für die Zahl */
                 }
                 .elo-background {
-                    width: 100px;
-                    height: 100px;
+                    width: 80px;
+                    height: 80px;
                     background-image: url('${getEloFrame(cachedData.premierRating)}');
                     background-size: contain;
                     background-repeat: no-repeat;
@@ -149,6 +151,7 @@ app.get("/obs-overlay", (req, res) => {
                 }
                 .wins {
                     color: #00ff00;
+                    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.75); /* ✅ Schatten für die Win-Zahl */
                 }
             </style>
         </head>
@@ -178,16 +181,10 @@ function getEloColor(rating) {
     return "rgba(183,199,214,255)";
 }
 
-// 📊 **Funktion zur Auswahl des passenden Elo-Rahmens**
-function getEloFrame(rating) {
-    const elo = parseInt(rating.replace(/[^0-9]/g, ""), 10) || 0;
-    if (elo >= 30000) return "https://static.csstats.gg/images/ranks/cs2/rating.unusual.png";
-    if (elo >= 25000) return "https://static.csstats.gg/images/ranks/cs2/rating.ancient.png";
-    if (elo >= 20000) return "https://static.csstats.gg/images/ranks/cs2/rating.legendary.png";
-    if (elo >= 15000) return "https://static.csstats.gg/images/ranks/cs2/rating.mythical.png";
-    if (elo >= 10000) return "https://static.csstats.gg/images/ranks/cs2/rating.rare.png";
-    if (elo >= 5000) return "https://static.csstats.gg/images/ranks/cs2/rating.uncommon.png";
-    return "https://static.csstats.gg/images/ranks/cs2/rating.common.png";
+// 📊 **Funktion zur Formatierung der Zahlen mit Tausendertrennzeichen**
+function formatNumber(num) {
+    if (!num) return "LÄDT...";
+    return parseInt(num.replace(/[^0-9]/g, ""), 10).toLocaleString("de-DE"); // Entfernt falsche Zeichen & formatiert
 }
 
 // 🚀 **Server starten**
