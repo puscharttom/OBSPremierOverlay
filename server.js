@@ -8,13 +8,14 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const STEAM_ID = "76561198021323440";
 
-// Caching der Daten
+// 🔥 Cache für gespeicherte Daten
 let cachedData = {
     premierRating: "Lädt...",
     premierWins: "Lädt...",
     lastUpdated: null
 };
 
+// 🚀 **Browser-Start-Funktion**
 async function startBrowser() {
     console.log("🔄 Starte Puppeteer...");
     try {
@@ -38,6 +39,7 @@ async function startBrowser() {
     }
 }
 
+// 🌍 **Scraper-Funktion für Premier Stats**
 async function scrapePremierStats() {
     let browser;
     try {
@@ -78,6 +80,7 @@ async function scrapePremierStats() {
         console.log(`✅ Premier-Rating: ${premierData.rating}`);
         console.log(`✅ Premier-Wins: ${premierData.wins}`);
 
+        // 🏆 **Daten in Cache speichern**
         cachedData = {
             premierRating: premierData.rating,
             premierWins: premierData.wins,
@@ -88,14 +91,19 @@ async function scrapePremierStats() {
     } catch (error) {
         console.error("❌ Fehler beim Scrapen:", error);
         if (browser) await browser.close();
+        // Falls Scraping fehlschlägt, nochmal nach 1 Minute versuchen
+        setTimeout(scrapePremierStats, 60 * 1000);
     }
 }
 
-// Automatische Aktualisierung alle 30 Minuten
-setInterval(scrapePremierStats, 30 * 60 * 1000);
-scrapePremierStats();
+// 🔄 **Automatische Updates alle 30 Minuten**
+async function autoUpdate() {
+    await scrapePremierStats(); // Erstes Scraping sofort starten
+    setInterval(scrapePremierStats, 30 * 60 * 1000); // Danach alle 30 Minuten
+}
+autoUpdate();
 
-// API-Endpoint für OBS
+// 🎥 **API-Endpoint für OBS Overlay**
 app.get("/obs-overlay", (req, res) => {
     res.send(`
         <html>
@@ -105,19 +113,27 @@ app.get("/obs-overlay", (req, res) => {
                 body {
                     font-family: 'Counter-Strike', sans-serif;
                     font-size: 36px;
-                    color: ${getEloColor(cachedData.premierRating)};
+                    color: white;
                     background: transparent;
-                    text-align: center;
+                    text-align: left;
+                    padding: 10px;
+                }
+                .rating {
+                    color: ${getEloColor(cachedData.premierRating)};
+                }
+                .wins {
+                    color: #00ff00;
                 }
             </style>
         </head>
         <body>
-            <span>Premier Rating: ${cachedData.premierRating} | Wins: ${cachedData.premierWins}/125</span>
+            <span>Rank: <span class="rating">${cachedData.premierRating}</span> | Wins: <span class="wins">${cachedData.premierWins}</span>/125</span>
         </body>
         </html>
     `);
 });
 
+// 🎨 **Funktion für Elo-Farben**
 function getEloColor(rating) {
     const elo = parseInt(rating, 10) || 0;
     if (elo >= 30000) return "rgba(253,215,0,255)";
@@ -129,7 +145,7 @@ function getEloColor(rating) {
     return "rgba(183,199,214,255)";
 }
 
-// Server starten
+// 🚀 **Server starten**
 app.listen(PORT, () => {
     console.log(`🚀 OBS Overlay läuft auf Port ${PORT}`);
 });
