@@ -123,13 +123,12 @@ app.get("/obs-overlay", (req, res) => {
                     padding: 10px;
                     text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.75);
                 }
-                /* 🖥 Farbverlauf als Hintergrund der Zahl */
+                /* 🎨 Farbverlauf auf der Zahl */
                 .rating {
                     background: linear-gradient(to bottom, white, ${getEloColor(cachedData.premierRating)});
-                    color: white;
-                    display: inline-block;
-                    padding: 3px 8px;
-                    border-radius: 5px;
+                    -webkit-background-clip: text;
+                    -webkit-text-fill-color: transparent;
+                    font-weight: bold;
                 }
                 .wins {
                     color: #00ff00;
