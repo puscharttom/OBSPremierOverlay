@@ -1,26 +1,26 @@
 const express = require("express");
-const puppeteer = require("puppeteer-extra");
-const StealthPlugin = require("puppeteer-extra-plugin-stealth");
-
-puppeteer.use(StealthPlugin());
+const puppeteer = require("puppeteer");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 async function startBrowser() {
     console.log("🔄 Starte Puppeteer...");
+
     try {
         const browser = await puppeteer.launch({
-            headless: "new",
+            headless: true,
+            executablePath: process.env.GOOGLE_CHROME_BIN || "/app/.apt/usr/bin/google-chrome",
             args: [
                 "--no-sandbox",
                 "--disable-setuid-sandbox",
-                "--disable-blink-features=AutomationControlled",
-                "--disable-dev-shm-usage"
-            ]
+                "--disable-gpu",
+                "--enable-javascript",
+                "--window-size=1280x800"
+            ],
         });
 
-        console.log(`🖥 Verwende Chrome unter: ${await browser.version()}`);
+        console.log("✅ Puppeteer erfolgreich gestartet!");
         return browser;
     } catch (error) {
         console.error("❌ Fehler beim Starten von Puppeteer:", error);
@@ -28,69 +28,49 @@ async function startBrowser() {
     }
 }
 
+// Funktion zum Scrapen der Premier-Rating-Daten
 async function scrapeCSStats(playerID) {
     let browser;
     try {
         browser = await startBrowser();
         const page = await browser.newPage();
 
-        // 👉 Setze User-Agent und Header, um Bot-Erkennung zu umgehen
-        await page.setUserAgent(
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36"
-        );
-        await page.setExtraHTTPHeaders({
-            "accept-language": "en-US,en;q=0.9",
-        });
-
         const url = `https://csstats.gg/player/${playerID}`;
         console.log(`🌍 Rufe Daten von: ${url}`);
+        await page.goto(url, { waitUntil: "networkidle2" });
 
-        await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60000 });
+        // Warten, bis das Element mit Premier-Rating geladen ist
+        await page.waitForSelector('img[alt="Premier - Season 2"]', { timeout: 15000 });
 
-        // **Extra Zeit für Cloudflare geben**
-        await new Promise(resolve => setTimeout(resolve, 5000));
+        // Premier-Rating finden
+        const premierRating = await page.evaluate(() => {
+            const premierElement = document.querySelector('img[alt="Premier - Season 2"]');
+            if (!premierElement) return "Keine Daten";
 
-        // **Cloudflare Block prüfen**
-        const blocked = await page.evaluate(() => {
-            return document.body.innerText.includes("Bestätigen Sie, dass Sie ein Mensch sind");
+            const parentDiv = premierElement.closest('.ranks');
+            if (!parentDiv) return "Keine Daten";
+
+            const ratingElement = parentDiv.querySelector(".cs2rating span");
+            return ratingElement ? ratingElement.innerText.trim() : "Keine Daten";
         });
 
-        if (blocked) {
-            console.error("❌ Cloudflare blockiert den Zugriff!");
-            await browser.close();
-            return { error: "Cloudflare blockiert den Zugriff!" };
-        }
+        // Premier-Wins finden
+        const premierWins = await page.evaluate(() => {
+            const premierElement = document.querySelector('img[alt="Premier - Season 2"]');
+            if (!premierElement) return "Keine Daten";
 
-        // **Suche Premier-Rating und Wins**
-        let premierData = await page.evaluate(() => {
-            let images = document.querySelectorAll("img");
-            let premierDiv = null;
+            const parentDiv = premierElement.closest('.ranks');
+            if (!parentDiv) return "Keine Daten";
 
-            images.forEach(img => {
-                if (img.alt.includes("Premier - Season 2")) {
-                    premierDiv = img.closest(".ranks");
-                }
-            });
-
-            if (!premierDiv) {
-                return { rating: "Keine Daten", wins: "Keine Daten" };
-            }
-
-            let ratingElement = premierDiv.querySelector(".cs2rating span");
-            let rating = ratingElement ? ratingElement.innerText.replace(",", "").trim() : "Keine Daten";
-
-            let winsElement = premierDiv.querySelector(".wins b");
-            let wins = winsElement ? winsElement.innerText.trim() : "Keine Daten";
-
-            return { rating, wins };
+            const winsElement = parentDiv.querySelector(".wins b");
+            return winsElement ? winsElement.innerText.trim() : "Keine Daten";
         });
 
-        console.log(`✅ Premier-Rating: ${premierData.rating}`);
-        console.log(`✅ Premier-Wins: ${premierData.wins}`);
+        console.log(`✅ Premier-Rating: ${premierRating}`);
+        console.log(`✅ Premier-Wins: ${premierWins}`);
 
         await browser.close();
-        return { playerID, premierRating: premierData.rating, premierWins: premierData.wins };
-
+        return { premierRating, premierWins };
     } catch (error) {
         console.error("❌ Fehler beim Scrapen:", error);
         if (browser) await browser.close();
@@ -98,7 +78,7 @@ async function scrapeCSStats(playerID) {
     }
 }
 
-// **API-Endpunkt für CSStats-Daten**
+// API-Endpunkt für CSStats-Daten
 app.get("/csstats/:playerID", async (req, res) => {
     const { playerID } = req.params;
     if (!playerID) return res.status(400).json({ error: "PlayerID fehlt" });
@@ -107,7 +87,7 @@ app.get("/csstats/:playerID", async (req, res) => {
     res.json(data);
 });
 
-// **🚀 Starte den Server**
+// Starte den Server
 app.listen(PORT, () => {
     console.log(`🚀 Server läuft auf Port ${PORT}`);
 });
