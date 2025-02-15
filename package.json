@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "postinstall": "npx puppeteer browsers install chrome"
+    "postinstall": "echo 'Skipping Puppeteer installation on Heroku'"
   },
   "engines": {
     "node": "18.x",
