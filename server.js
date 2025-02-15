@@ -109,7 +109,7 @@ function getCountdown() {
     const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
     const hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
 
-    return { countdownText: `⏳Die Season endet in ${days} Tage(n) & ${hours} Stunden`, daysRemaining: days };
+    return { countdownText: `⏳Die Season endet in ${days} Tagen & ${hours} Stunden`, daysRemaining: days };
 }
 
 // **API-Endpunkt für CSStats-Daten mit Berechnung**
