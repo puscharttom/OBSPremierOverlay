@@ -81,6 +81,7 @@ async function scrapePremierStats() {
             console.log(`✅ PREMIER-RATING: ${premierData.rating}`);
             console.log(`✅ PREMIER-WINS: ${premierData.wins}`);
 
+            // 🏆 **Daten in Cache speichern, mit Uppercase und Tausendertrennzeichen**
             cachedData = {
                 premierRating: formatNumber(premierData.rating).toUpperCase(),
                 premierWins: formatNumber(premierData.wins).toUpperCase(),
@@ -121,13 +122,30 @@ app.get("/obs-overlay", (req, res) => {
                     text-align: left;
                     padding: 10px;
                 }
-                .rating {
+                .elo-container {
+                    display: inline-block;
+                    position: relative;
+                    padding: 10px;
+                }
+                .elo-number {
+                    font-size: 50px;
+                    font-weight: bold;
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
                     color: ${getEloColor(cachedData.premierRating)};
-                    background-image: url(${getEloFrame(cachedData.premierRating)});
+                }
+                .elo-background {
+                    width: 100px;
+                    height: 100px;
+                    background-image: url('${getEloFrame(cachedData.premierRating)}');
                     background-size: contain;
                     background-repeat: no-repeat;
-                    padding: 10px;
-                    display: inline-block;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    position: relative;
                 }
                 .wins {
                     color: #00ff00;
@@ -135,7 +153,13 @@ app.get("/obs-overlay", (req, res) => {
             </style>
         </head>
         <body>
-            <span>ELO: <span class="rating">${cachedData.premierRating}</span> | WINS: <span class="wins">${cachedData.premierWins}</span>/125</span>
+            <span>ELO: 
+                <div class="elo-container">
+                    <div class="elo-background"></div>
+                    <span class="elo-number">${cachedData.premierRating}</span>
+                </div> 
+                | WINS: <span class="wins">${cachedData.premierWins}</span>/125
+            </span>
         </body>
         </html>
     `);
@@ -143,6 +167,7 @@ app.get("/obs-overlay", (req, res) => {
 
 // 🎨 **Funktion für Elo-Farben**
 function getEloColor(rating) {
+    if (!rating) return "rgba(183,199,214,255)";
     const elo = parseInt(rating.replace(/[^0-9]/g, ""), 10) || 0;
     if (elo >= 30000) return "rgba(253,215,0,255)";
     if (elo >= 25000) return "rgba(236,74,72,255)";
@@ -151,6 +176,18 @@ function getEloColor(rating) {
     if (elo >= 10000) return "rgba(104,125,234,255)";
     if (elo >= 5000) return "rgba(137,187,229,255)";
     return "rgba(183,199,214,255)";
+}
+
+// 📊 **Funktion zur Auswahl des passenden Elo-Rahmens**
+function getEloFrame(rating) {
+    const elo = parseInt(rating.replace(/[^0-9]/g, ""), 10) || 0;
+    if (elo >= 30000) return "https://static.csstats.gg/images/ranks/cs2/rating.unusual.png";
+    if (elo >= 25000) return "https://static.csstats.gg/images/ranks/cs2/rating.ancient.png";
+    if (elo >= 20000) return "https://static.csstats.gg/images/ranks/cs2/rating.legendary.png";
+    if (elo >= 15000) return "https://static.csstats.gg/images/ranks/cs2/rating.mythical.png";
+    if (elo >= 10000) return "https://static.csstats.gg/images/ranks/cs2/rating.rare.png";
+    if (elo >= 5000) return "https://static.csstats.gg/images/ranks/cs2/rating.uncommon.png";
+    return "https://static.csstats.gg/images/ranks/cs2/rating.common.png";
 }
 
 // 🚀 **Server starten**
