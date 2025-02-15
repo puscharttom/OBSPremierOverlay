@@ -123,9 +123,9 @@ app.get("/obs-overlay", (req, res) => {
                     padding: 10px;
                     text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.75);
                 }
-                /* 🖥 Korrigierter Farbverlauf - Unten dunkler, oben heller */
+                /* 🖥 Farbverlauf von Weiß nach unten zur Elo-Farbe */
                 .rating {
-                    background: linear-gradient(to top, ${getEloColor(cachedData.premierRating)}, white);
+                    background: linear-gradient(to bottom, white, ${getEloColor(cachedData.premierRating)});
                     -webkit-background-clip: text;
                     -webkit-text-fill-color: transparent;
                     font-weight: bold;
