@@ -4,18 +4,18 @@ const StealthPlugin = require("puppeteer-extra-plugin-stealth");
 
 puppeteer.use(StealthPlugin());
 
-const app = express();  // 🛠 Hier wurde `app` hinzugefügt
-const PORT = process.env.PORT || 3000;  // 🛠 Hier wurde `PORT` hinzugefügt
+const app = express();
+const PORT = process.env.PORT || 3000;
 
 async function startBrowser() {
     console.log("🔄 Starte Puppeteer...");
     try {
         const browser = await puppeteer.launch({
             headless: "new",
-            executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || 
-                             "/usr/bin/google-chrome" || 
-                             "/usr/bin/chromium-browser" || 
-                             puppeteer.executablePath(),
+            executablePath: process.env.PUPPETEER_EXECUTABLE_PATH ||
+                "/usr/bin/google-chrome" ||
+                "/usr/bin/chromium-browser" ||
+                puppeteer.executablePath(),
             args: [
                 "--no-sandbox",
                 "--disable-setuid-sandbox",
@@ -98,7 +98,21 @@ async function scrapeCSStats(playerID) {
     }
 }
 
-// **API-Endpunkt für CSStats-Daten**
+// **Countdown-Funktion für den 23.06.2025**
+function getCountdown() {
+    const targetDate = new Date("2025-06-23T00:00:00Z");
+    const now = new Date();
+
+    const diffMs = targetDate - now;
+    if (diffMs <= 0) return { countdownText: "🚀 Event gestartet!", daysRemaining: 0 };
+
+    const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+
+    return { countdownText: `⏳ ${days} Tage, ${hours} Stunden bis zum 23.06.2025`, daysRemaining: days };
+}
+
+// **API-Endpunkt für CSStats-Daten mit Berechnung**
 app.get("/csstats/:playerID", async (req, res) => {
     const { playerID } = req.params;
     if (!playerID) return res.status(400).send("❌ PlayerID fehlt!");
@@ -107,7 +121,17 @@ app.get("/csstats/:playerID", async (req, res) => {
 
     if (data.error) return res.send(`❌ Fehler: ${data.error}`);
 
-    res.send(`Rating: ${data.premierRating} | Wins: ${data.premierWins}`);
+    const { countdownText, daysRemaining } = getCountdown();
+
+    // 🔢 Berechnung der benötigten Wins pro Tag
+    const totalWinsNeeded = 125;
+    const winsSoFar = parseInt(data.premierWins, 10) || 0;
+    const winsRemaining = Math.max(totalWinsNeeded - winsSoFar, 0);
+    const avgWinsPerDay = daysRemaining > 0 ? (winsRemaining / daysRemaining).toFixed(2) : "🚀 Ziel erreicht!";
+
+    res.send(
+        `🎮 SteamID: ${playerID} | 🏆 Rating: ${data.premierRating} | ✅ Wins: ${data.premierWins} | ${countdownText} | 🎯 Du brauchst noch ${winsRemaining} Wins (${avgWinsPerDay} pro Tag) für die Medaille!`
+    );
 });
 
 // **🚀 Starte den Server**
