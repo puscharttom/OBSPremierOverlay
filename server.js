@@ -8,7 +8,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const STEAM_ID = "76561198021323440";
 
-// 🔥 Cache für gespeicherte Daten
+// 🔥 **Cache für gespeicherte Daten**
 let cachedData = {
     premierRating: "Lädt...",
     premierWins: "Lädt...",
@@ -65,27 +65,32 @@ async function scrapePremierStats() {
             });
 
             if (!premierDiv) {
-                return { rating: "Keine Daten", wins: "Keine Daten" };
+                return { rating: null, wins: null };
             }
 
             let ratingElement = premierDiv.querySelector(".cs2rating span");
-            let rating = ratingElement ? ratingElement.innerText.replace(",", "").trim() : "Keine Daten";
+            let rating = ratingElement ? ratingElement.innerText.replace(",", "").trim() : null;
 
             let winsElement = premierDiv.querySelector(".wins b");
-            let wins = winsElement ? winsElement.innerText.trim() : "Keine Daten";
+            let wins = winsElement ? winsElement.innerText.trim() : null;
 
             return { rating, wins };
         });
 
-        console.log(`✅ Premier-Rating: ${premierData.rating}`);
-        console.log(`✅ Premier-Wins: ${premierData.wins}`);
+        if (premierData.rating && premierData.wins) {
+            console.log(`✅ Premier-Rating: ${premierData.rating}`);
+            console.log(`✅ Premier-Wins: ${premierData.wins}`);
 
-        // 🏆 **Daten in Cache speichern**
-        cachedData = {
-            premierRating: premierData.rating,
-            premierWins: premierData.wins,
-            lastUpdated: new Date()
-        };
+            // 🏆 **Daten in Cache speichern**
+            cachedData = {
+                premierRating: premierData.rating,
+                premierWins: premierData.wins,
+                lastUpdated: new Date()
+            };
+        } else {
+            console.log("⚠ Keine gültigen Daten gefunden, erneuter Versuch in 1 Minute...");
+            setTimeout(scrapePremierStats, 60 * 1000); // Falls keine Daten, nach 1 Minute erneut versuchen
+        }
 
         await browser.close();
     } catch (error) {
