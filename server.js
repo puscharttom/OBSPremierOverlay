@@ -4,21 +4,21 @@ const StealthPlugin = require("puppeteer-extra-plugin-stealth");
 
 puppeteer.use(StealthPlugin());
 
-const app = express();
-const PORT = process.env.PORT || 8080;
-
 async function startBrowser() {
     console.log("🔄 Starte Puppeteer...");
     try {
         const browser = await puppeteer.launch({
             headless: "new",
+            executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || // Nutzt Umgebungsvariable
+                             "/usr/bin/google-chrome" || // Standardpfad für Google Chrome
+                             "/usr/bin/chromium-browser" || // Falls Chromium installiert ist
+                             puppeteer.executablePath(), // Nutzt den internen Pfad von Puppeteer
             args: [
                 "--no-sandbox",
                 "--disable-setuid-sandbox",
                 "--disable-blink-features=AutomationControlled",
                 "--disable-dev-shm-usage"
-            ],
-            executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || "/usr/bin/google-chrome-stable"
+            ]
         });
 
         console.log(`🖥 Verwende Chrome unter: ${await browser.version()}`);
