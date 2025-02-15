@@ -185,4 +185,5 @@ function formatNumber(num) {
 
 // 🚀 **Server starten**
 app.listen(PORT, () => {
-    console.log(`🚀 OBS OVERLAY LÄUFT
+    console.log(`🚀 OBS OVERLAY LÄUFT AUF PORT ${PORT}`);
+});
