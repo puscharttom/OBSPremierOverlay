@@ -52,7 +52,7 @@ async function scrapePremierStats() {
         const url = `https://csstats.gg/player/${STEAM_ID}`;
         console.log(`🌍 Rufe Daten von: ${url}`);
         await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60000 });
-        await new Promise(resolve => setTimeout(resolve, 20000));
+        await new Promise(resolve => setTimeout(resolve, 5000));
 
         let premierData = await page.evaluate(() => {
             let images = document.querySelectorAll("img");
@@ -96,8 +96,7 @@ async function scrapePremierStats() {
     } catch (error) {
         console.error("❌ Fehler beim Scrapen:", error);
         if (browser) await browser.close();
-        // Falls Scraping fehlschlägt, nochmal nach 1 Minute versuchen
-        setTimeout(scrapePremierStats, 60 * 1000);
+        setTimeout(scrapePremierStats, 60 * 1000); // Falls Scraping fehlschlägt, nochmal nach 1 Minute versuchen
     }
 }
 
@@ -122,7 +121,7 @@ app.get("/obs-overlay", (req, res) => {
                     background: transparent;
                     text-align: left;
                     padding: 10px;
-                    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.75); /* 🖥 **Schatten für gesamten Text** */
+                    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.75);
                 }
                 .rating {
                     color: ${getEloColor(cachedData.premierRating)};
@@ -131,12 +130,32 @@ app.get("/obs-overlay", (req, res) => {
                     color: #00ff00;
                 }
             </style>
+            <script>
+                function updateData() {
+                    fetch("/obs-overlay-data")
+                        .then(response => response.json())
+                        .then(data => {
+                            document.getElementById("rating").innerText = data.premierRating;
+                            document.getElementById("wins").innerText = data.premierWins;
+                        })
+                        .catch(err => console.error("❌ Fehler beim Abrufen der Daten:", err));
+                }
+                setInterval(updateData, 30000); // Alle 30 Sekunden aktualisieren
+            </script>
         </head>
         <body>
-            <span>Rank: <span class="rating">${cachedData.premierRating}</span> | Wins: <span class="wins">${cachedData.premierWins}</span>/125</span>
+            <span>Rank: <span id="rating" class="rating">${cachedData.premierRating}</span> | Wins: <span id="wins" class="wins">${cachedData.premierWins}</span>/125</span>
         </body>
         </html>
     `);
+});
+
+// 🎨 **API-Endpoint für OBS, um nur die Daten zu liefern**
+app.get("/obs-overlay-data", (req, res) => {
+    res.json({
+        premierRating: cachedData.premierRating,
+        premierWins: cachedData.premierWins
+    });
 });
 
 // 🎨 **Funktion für Elo-Farben**
