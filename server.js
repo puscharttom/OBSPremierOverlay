@@ -101,10 +101,13 @@ async function scrapeCSStats(playerID) {
 // **API-Endpunkt für CSStats-Daten**
 app.get("/csstats/:playerID", async (req, res) => {
     const { playerID } = req.params;
-    if (!playerID) return res.status(400).json({ error: "PlayerID fehlt" });
+    if (!playerID) return res.status(400).send("❌ PlayerID fehlt!");
 
     const data = await scrapeCSStats(playerID);
-    res.json(data);
+
+    if (data.error) return res.send(`❌ Fehler: ${data.error}`);
+
+    res.send(`Rating: ${data.premierRating} | Wins: ${data.premierWins}`);
 });
 
 // **🚀 Starte den Server**
