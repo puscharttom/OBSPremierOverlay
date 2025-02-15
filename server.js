@@ -6,6 +6,14 @@ puppeteer.use(StealthPlugin());
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const STEAM_ID = "76561198021323440";
+
+// Caching der Daten
+let cachedData = {
+    premierRating: "Lädt...",
+    premierWins: "Lädt...",
+    lastUpdated: null
+};
 
 async function startBrowser() {
     console.log("🔄 Starte Puppeteer...");
@@ -23,8 +31,6 @@ async function startBrowser() {
                 "--disable-dev-shm-usage"
             ]
         });
-
-        console.log(`🖥 Verwende Chrome unter: ${await browser.version()}`);
         return browser;
     } catch (error) {
         console.error("❌ Fehler beim Starten von Puppeteer:", error);
@@ -32,35 +38,19 @@ async function startBrowser() {
     }
 }
 
-async function scrapeCSStats(playerID) {
+async function scrapePremierStats() {
     let browser;
     try {
         browser = await startBrowser();
         const page = await browser.newPage();
 
-        await page.setUserAgent(
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36"
-        );
-        await page.setExtraHTTPHeaders({
-            "accept-language": "en-US,en;q=0.9",
-        });
+        await page.setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36");
+        await page.setExtraHTTPHeaders({ "accept-language": "en-US,en;q=0.9" });
 
-        const url = `https://csstats.gg/player/${playerID}`;
+        const url = `https://csstats.gg/player/${STEAM_ID}`;
         console.log(`🌍 Rufe Daten von: ${url}`);
-
         await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60000 });
-
         await new Promise(resolve => setTimeout(resolve, 5000));
-
-        const blocked = await page.evaluate(() => {
-            return document.body.innerText.includes("Bestätigen Sie, dass Sie ein Mensch sind");
-        });
-
-        if (blocked) {
-            console.error("❌ Cloudflare blockiert den Zugriff!");
-            await browser.close();
-            return { error: "Cloudflare blockiert den Zugriff!" };
-        }
 
         let premierData = await page.evaluate(() => {
             let images = document.querySelectorAll("img");
@@ -88,53 +78,58 @@ async function scrapeCSStats(playerID) {
         console.log(`✅ Premier-Rating: ${premierData.rating}`);
         console.log(`✅ Premier-Wins: ${premierData.wins}`);
 
-        await browser.close();
-        return { playerID, premierRating: premierData.rating, premierWins: premierData.wins };
+        cachedData = {
+            premierRating: premierData.rating,
+            premierWins: premierData.wins,
+            lastUpdated: new Date()
+        };
 
+        await browser.close();
     } catch (error) {
         console.error("❌ Fehler beim Scrapen:", error);
         if (browser) await browser.close();
-        return { error: "Fehler beim Scrapen der Daten" };
     }
 }
 
-// **Countdown-Funktion für den 23.06.2025**
-function getCountdown() {
-    const targetDate = new Date("2025-06-23T00:00:00Z");
-    const now = new Date();
+// Automatische Aktualisierung alle 30 Minuten
+setInterval(scrapePremierStats, 30 * 60 * 1000);
+scrapePremierStats();
 
-    const diffMs = targetDate - now;
-    if (diffMs <= 0) return { countdownText: "🚀 Event gestartet!", daysRemaining: 0 };
-
-    const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-
-    return { countdownText: `⏳Die Season endet in ${days} Tagen & ${hours} Stunden`, daysRemaining: days };
-}
-
-// **API-Endpunkt für CSStats-Daten mit Berechnung**
-app.get("/csstats/:playerID", async (req, res) => {
-    const { playerID } = req.params;
-    if (!playerID) return res.status(400).send("❌ PlayerID fehlt!");
-
-    const data = await scrapeCSStats(playerID);
-
-    if (data.error) return res.send(`❌ Fehler: ${data.error}`);
-
-    const { countdownText, daysRemaining } = getCountdown();
-
-    // 🔢 Berechnung der benötigten Wins pro Tag
-    const totalWinsNeeded = 125;
-    const winsSoFar = parseInt(data.premierWins, 10) || 0;
-    const winsRemaining = Math.max(totalWinsNeeded - winsSoFar, 0);
-    const avgWinsPerDay = daysRemaining > 0 ? (winsRemaining / daysRemaining).toFixed(2) : "🚀 Ziel erreicht!";
-
-    res.send(
-        `🏆 Rating: ${data.premierRating} | ✅ Wins: ${data.premierWins} | ${countdownText} | 🎯 Noch ${winsRemaining} Wins, also ${avgWinsPerDay} pro Tag!`
-    );
+// API-Endpoint für OBS
+app.get("/obs-overlay", (req, res) => {
+    res.send(`
+        <html>
+        <head>
+            <link href="https://fonts.cdnfonts.com/css/counter-strike" rel="stylesheet">
+            <style>
+                body {
+                    font-family: 'Counter-Strike', sans-serif;
+                    font-size: 36px;
+                    color: ${getEloColor(cachedData.premierRating)};
+                    background: transparent;
+                    text-align: center;
+                }
+            </style>
+        </head>
+        <body>
+            <span>Premier Rating: ${cachedData.premierRating} | Wins: ${cachedData.premierWins}/125</span>
+        </body>
+        </html>
+    `);
 });
 
-// **🚀 Starte den Server**
+function getEloColor(rating) {
+    const elo = parseInt(rating, 10) || 0;
+    if (elo >= 30000) return "rgba(253,215,0,255)";
+    if (elo >= 25000) return "rgba(236,74,72,255)";
+    if (elo >= 20000) return "rgba(227,20,240,255)";
+    if (elo >= 15000) return "rgba(189,106,253,255)";
+    if (elo >= 10000) return "rgba(104,125,234,255)";
+    if (elo >= 5000) return "rgba(137,187,229,255)";
+    return "rgba(183,199,214,255)";
+}
+
+// Server starten
 app.listen(PORT, () => {
-    console.log(`🚀 Server läuft auf Port ${PORT}`);
+    console.log(`🚀 OBS Overlay läuft auf Port ${PORT}`);
 });
