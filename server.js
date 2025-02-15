@@ -52,7 +52,7 @@ async function scrapePremierStats() {
         const url = `https://csstats.gg/player/${STEAM_ID}`;
         console.log(`🌍 Rufe Daten von: ${url}`);
         await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60000 });
-        await new Promise(resolve => setTimeout(resolve, 5000));
+        await new Promise(resolve => setTimeout(resolve, 20000));
 
         let premierData = await page.evaluate(() => {
             let images = document.querySelectorAll("img");
