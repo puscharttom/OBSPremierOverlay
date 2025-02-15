@@ -4,19 +4,23 @@ const puppeteer = require("puppeteer");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-async function scrapeStats(steamID) {
-    console.log(`🔄 Starte Puppeteer für SteamID: ${steamID}`);
+app.get("/", (req, res) => {
+    res.send("CSStatsPremBot ist online! 🚀");
+});
 
-    let browser;
+app.get("/csstats/:steamID", async (req, res) => {
+    const steamID = req.params.steamID;
+    console.log(`🔍 Scraping für Steam-ID: ${steamID}`);
+
     try {
-        browser = await puppeteer.launch({
-            headless: "new", // Neues Headless-Modus für bessere Kompatibilität
-            executablePath: "/usr/bin/google-chrome-stable", // Pfad für Render.com
+        const browser = await puppeteer.launch({
+            headless: "new",
+            executablePath: "/usr/bin/google-chrome-stable", // Render.com Chrome-Pfad
             args: [
                 "--no-sandbox",
                 "--disable-setuid-sandbox",
-                "--disable-gpu",
                 "--disable-dev-shm-usage",
+                "--disable-gpu",
                 "--disable-software-rasterizer"
             ]
         });
@@ -24,43 +28,26 @@ async function scrapeStats(steamID) {
         const page = await browser.newPage();
         const url = `https://csstats.gg/player/${steamID}`;
         console.log(`🌍 Öffne URL: ${url}`);
-        
+
         await page.goto(url, { waitUntil: "networkidle2" });
 
-        // Warte auf ein zentrales Element auf der Seite
-        await page.waitForSelector(".player-stats", { timeout: 5000 });
-
+        // Beispiel: Stats auslesen
         const stats = await page.evaluate(() => {
-            const playerName = document.querySelector(".player-name")?.innerText || "Unbekannt";
-            const rank = document.querySelector(".rank")?.innerText || "Keine Daten";
-            return { playerName, rank };
+            const name = document.querySelector("h1.player-name")?.innerText || "Unbekannt";
+            const rank = document.querySelector(".rank")?.innerText || "Keine Rangdaten";
+            return { name, rank };
         });
 
-        console.log(`✅ Erfolgreich gescrapt:`, stats);
-        return { success: true, data: stats };
+        await browser.close();
+        console.log("✅ Scraping erfolgreich:", stats);
+
+        res.json({ success: true, steamID, stats });
     } catch (error) {
-        console.error("❌ Fehler beim Scrapen:", error);
-        return { success: false, message: "Scraping fehlgeschlagen", error: error.message };
-    } finally {
-        if (browser) {
-            await browser.close();
-        }
+        console.error("❌ Fehler beim Scraping:", error);
+        res.json({ success: false, message: "Scraping fehlgeschlagen", error: error.toString() });
     }
-}
-
-// API-Route für Scraping
-app.get("/csstats/:steamID", async (req, res) => {
-    const steamID = req.params.steamID;
-    const result = await scrapeStats(steamID);
-    res.json(result);
 });
 
-// Test-Route
-app.get("/", (req, res) => {
-    res.send("✅ CSStats Scraper läuft auf Render.com!");
-});
-
-// Server starten
 app.listen(PORT, () => {
     console.log(`🚀 Server läuft auf http://localhost:${PORT}`);
 });
