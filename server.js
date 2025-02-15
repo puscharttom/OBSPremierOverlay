@@ -123,12 +123,11 @@ app.get("/obs-overlay", (req, res) => {
                     padding: 10px;
                     text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.75);
                 }
-                /* 🖥 Farbverlauf von Weiß nach unten zur Elo-Farbe */
+                /* 🖥 Farbverlauf als Hintergrund der Zahl */
                 .rating {
                     background: linear-gradient(to bottom, white, ${getEloColor(cachedData.premierRating)});
-                    -webkit-background-clip: text;
-                    -webkit-text-fill-color: transparent;
-                    font-weight: bold;
+                    color: white;
+                    display: inline-block;
                     padding: 3px 8px;
                     border-radius: 5px;
                 }
