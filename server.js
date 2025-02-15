@@ -4,15 +4,18 @@ const StealthPlugin = require("puppeteer-extra-plugin-stealth");
 
 puppeteer.use(StealthPlugin());
 
+const app = express();  // 🛠 Hier wurde `app` hinzugefügt
+const PORT = process.env.PORT || 3000;  // 🛠 Hier wurde `PORT` hinzugefügt
+
 async function startBrowser() {
     console.log("🔄 Starte Puppeteer...");
     try {
         const browser = await puppeteer.launch({
             headless: "new",
-            executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || // Nutzt Umgebungsvariable
-                             "/usr/bin/google-chrome" || // Standardpfad für Google Chrome
-                             "/usr/bin/chromium-browser" || // Falls Chromium installiert ist
-                             puppeteer.executablePath(), // Nutzt den internen Pfad von Puppeteer
+            executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || 
+                             "/usr/bin/google-chrome" || 
+                             "/usr/bin/chromium-browser" || 
+                             puppeteer.executablePath(),
             args: [
                 "--no-sandbox",
                 "--disable-setuid-sandbox",
@@ -35,7 +38,6 @@ async function scrapeCSStats(playerID) {
         browser = await startBrowser();
         const page = await browser.newPage();
 
-        // 👉 Setze User-Agent und Header, um Bot-Erkennung zu umgehen
         await page.setUserAgent(
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/113.0.0.0 Safari/537.36"
         );
@@ -48,10 +50,8 @@ async function scrapeCSStats(playerID) {
 
         await page.goto(url, { waitUntil: "domcontentloaded", timeout: 60000 });
 
-        // **Extra Zeit für Cloudflare geben**
         await new Promise(resolve => setTimeout(resolve, 5000));
 
-        // **Cloudflare Block prüfen**
         const blocked = await page.evaluate(() => {
             return document.body.innerText.includes("Bestätigen Sie, dass Sie ein Mensch sind");
         });
@@ -62,7 +62,6 @@ async function scrapeCSStats(playerID) {
             return { error: "Cloudflare blockiert den Zugriff!" };
         }
 
-        // **Suche Premier-Rating und Wins**
         let premierData = await page.evaluate(() => {
             let images = document.querySelectorAll("img");
             let premierDiv = null;
