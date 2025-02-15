@@ -109,7 +109,7 @@ function getCountdown() {
     const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
     const hours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
 
-    return { countdownText: `⏳ ${days} Tage, ${hours} Stunden bis zum 23.06.2025`, daysRemaining: days };
+    return { countdownText: `⏳Die Season endet in ${days} Tage(n) & ${hours} Stunden`, daysRemaining: days };
 }
 
 // **API-Endpunkt für CSStats-Daten mit Berechnung**
@@ -130,7 +130,7 @@ app.get("/csstats/:playerID", async (req, res) => {
     const avgWinsPerDay = daysRemaining > 0 ? (winsRemaining / daysRemaining).toFixed(2) : "🚀 Ziel erreicht!";
 
     res.send(
-        `🎮 SteamID: ${playerID} | 🏆 Rating: ${data.premierRating} | ✅ Wins: ${data.premierWins} | ${countdownText} | 🎯 Du brauchst noch ${winsRemaining} Wins (${avgWinsPerDay} pro Tag) für die Medaille!`
+        `🏆 Rating: ${data.premierRating} | ✅ Wins: ${data.premierWins} | ${countdownText} | 🎯 Noch ${winsRemaining} Wins, also ${avgWinsPerDay} pro Tag!`
     );
 });
 
