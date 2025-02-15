@@ -123,12 +123,14 @@ app.get("/obs-overlay", (req, res) => {
                     padding: 10px;
                     text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.75);
                 }
-                /* Gradient für ELO-Zahl */
+                /* 🖥 Farbverlauf von Elo-Farbe nach Weiß */
                 .rating {
-                    background: linear-gradient(to top, ${getEloColor(cachedData.premierRating)}, rgba(255, 255, 255, 0.9));
+                    background: linear-gradient(to top, ${getEloColor(cachedData.premierRating)}, white);
                     -webkit-background-clip: text;
                     -webkit-text-fill-color: transparent;
                     font-weight: bold;
+                    padding: 3px 8px;
+                    border-radius: 5px;
                 }
                 .wins {
                     color: #00ff00;
@@ -183,5 +185,4 @@ function formatNumber(num) {
 
 // 🚀 **Server starten**
 app.listen(PORT, () => {
-    console.log(`🚀 OBS OVERLAY LÄUFT AUF PORT ${PORT}`);
-});
+    console.log(`🚀 OBS OVERLAY LÄUFT
