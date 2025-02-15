@@ -1,20 +1,20 @@
 {
   "name": "csstats-bot",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Ein Bot zum Abrufen von CSStats Premier Ratings",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js",
+    "postinstall": "npx puppeteer browsers install chrome"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
+  "engines": {
+    "node": "18.x",
+    "npm": "8.x"
+  },
   "dependencies": {
-    "dotenv": "^16.4.7",
-    "express": "^4.21.2",
-    "puppeteer": "^24.2.1",
-    "puppeteer-extra": "^3.3.6",
-    "puppeteer-extra-plugin-stealth": "^2.11.2"
+    "express": "^4.18.2",
+    "puppeteer": "^21.11.0",
+    "puppeteer-extra": "^3.3.4",
+    "puppeteer-extra-plugin-stealth": "^2.9.0"
   }
 }
