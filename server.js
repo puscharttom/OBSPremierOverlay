@@ -81,7 +81,6 @@ async function scrapePremierStats() {
             console.log(`✅ PREMIER-RATING: ${premierData.rating}`);
             console.log(`✅ PREMIER-WINS: ${premierData.wins}`);
 
-            // 🏆 **Daten in Cache speichern, mit Uppercase und Tausendertrennzeichen**
             cachedData = {
                 premierRating: formatNumber(premierData.rating).toUpperCase(),
                 premierWins: formatNumber(premierData.wins).toUpperCase(),
@@ -112,59 +111,39 @@ app.get("/obs-overlay", (req, res) => {
     res.send(`
         <html>
         <head>
-            <link href="https://fonts.cdnfonts.com/css/counter-strike" rel="stylesheet">
+            <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap" rel="stylesheet">
             <style>
                 body {
-                    font-family: 'Counter-Strike', sans-serif;
+                    font-family: 'Roboto', sans-serif;
                     font-size: 50px;
                     color: white;
                     background: transparent;
                     text-align: left;
                     padding: 10px;
-                    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.75);
                 }
                 .rating {
-                    font-weight: bold;
-                    background: linear-gradient(to bottom, white, ${getEloColor(cachedData.premierRating)});
-                    -webkit-background-clip: text;
-                    -webkit-text-fill-color: transparent;
+                    color: ${getEloColor(cachedData.premierRating)};
+                    background-image: url(${getEloFrame(cachedData.premierRating)});
+                    background-size: contain;
+                    background-repeat: no-repeat;
+                    padding: 10px;
+                    display: inline-block;
                 }
                 .wins {
                     color: #00ff00;
                 }
             </style>
-            <script>
-                function updateData() {
-                    fetch("/obs-overlay-data")
-                        .then(response => response.json())
-                        .then(data => {
-                            document.getElementById("rating").innerText = data.premierRating;
-                            document.getElementById("wins").innerText = data.premierWins;
-                        })
-                        .catch(err => console.error("❌ FEHLER BEIM ABRUFEN DER DATEN:", err));
-                }
-                setInterval(updateData, 30000);
-            </script>
         </head>
         <body>
-            <span>ELO: <span id="rating" class="rating">${cachedData.premierRating}</span> | WINS: <span id="wins" class="wins">${cachedData.premierWins}</span>/125</span>
+            <span>ELO: <span class="rating">${cachedData.premierRating}</span> | WINS: <span class="wins">${cachedData.premierWins}</span>/125</span>
         </body>
         </html>
     `);
 });
 
-// 🎨 **API-Endpoint für OBS, um nur die Daten zu liefern**
-app.get("/obs-overlay-data", (req, res) => {
-    res.json({
-        premierRating: cachedData.premierRating,
-        premierWins: cachedData.premierWins
-    });
-});
-
 // 🎨 **Funktion für Elo-Farben**
 function getEloColor(rating) {
-    if (!rating) return "rgba(183,199,214,255)"; // Standardfarbe für ungültige Werte
-    const elo = parseInt(rating.replace(/[^0-9]/g, ""), 10) || 0; // Entfernt alle Nicht-Zahlen für Vergleich
+    const elo = parseInt(rating.replace(/[^0-9]/g, ""), 10) || 0;
     if (elo >= 30000) return "rgba(253,215,0,255)";
     if (elo >= 25000) return "rgba(236,74,72,255)";
     if (elo >= 20000) return "rgba(227,20,240,255)";
@@ -172,12 +151,6 @@ function getEloColor(rating) {
     if (elo >= 10000) return "rgba(104,125,234,255)";
     if (elo >= 5000) return "rgba(137,187,229,255)";
     return "rgba(183,199,214,255)";
-}
-
-// 📊 **Funktion zur Formatierung der Zahlen mit Tausendertrennzeichen**
-function formatNumber(num) {
-    if (!num) return "LÄDT...";
-    return parseInt(num.replace(/[^0-9]/g, ""), 10).toLocaleString("de-DE"); // Entfernt falsche Zeichen & formatiert
 }
 
 // 🚀 **Server starten**
