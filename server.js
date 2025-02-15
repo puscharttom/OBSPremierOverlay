@@ -125,9 +125,11 @@ app.get("/obs-overlay", (req, res) => {
                 }
                 .rating {
                     color: ${getEloColor(cachedData.premierRating)};
+                    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.75); /* 🖥 Elo-Text mit Schatten */
                 }
                 .wins {
                     color: #00ff00;
+                    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.75); /* 🏆 Wins-Text mit Schatten */
                 }
             </style>
         </head>
