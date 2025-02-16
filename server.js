@@ -198,15 +198,15 @@ function getEloColor(rating) {
 
 // 🎨 **Funktion für Elo-Rahmen**
 function getEloFrame(rating) {
-    if (!rating || rating === "-") return "https://static.csstats.gg/images/ranks/cs2/rating.common.png";
+    if (!rating || rating === "-") return "https://i.imgur.com/pOLvm9D.png";
     const elo = parseInt(rating.replace(/[^0-9]/g, ""), 10) || 0;
-    if (elo >= 30000) return "https://i.imgur.com/pOLvm9D.png";
-    if (elo >= 25000) return "https://static.csstats.gg/images/ranks/cs2/rating.ancient.png";
-    if (elo >= 20000) return "https://i.imgur.com/hrs8Sbr.png";
-    if (elo >= 15000) return "https://static.csstats.gg/images/ranks/cs2/rating.mythical.png";
-    if (elo >= 10000) return "https://static.csstats.gg/images/ranks/cs2/rating.rare.png";
-    if (elo >= 5000) return "https://i.imgur.com/pOLvm9D.png";
-    return "https://static.csstats.gg/images/ranks/cs2/rating.common.png";
+    if (elo >= 30000) return "https://i.imgur.com/FhmJRgu.png";
+    if (elo >= 25000) return "https://i.imgur.com/K9zpXg2.png";
+    if (elo >= 20000) return "https://i.imgur.com/Axt1sJF.png";
+    if (elo >= 15000) return "https://i.imgur.com/sBn03Kf.png";
+    if (elo >= 10000) return "https://i.imgur.com/PStbp8P.png";
+    if (elo >= 5000) return "https://i.imgur.com/EwABxKg.png";
+    return "https://i.imgur.com/pOLvm9D.png";
 }
 
 // 📊 **Zahlen mit Tausendertrennzeichen formatieren**
