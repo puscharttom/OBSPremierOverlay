@@ -109,6 +109,10 @@ autoUpdate();
 
 // 🎥 **API-Endpoint für OBS Overlay**
 app.get("/obs-overlay", (req, res) => {
+    const eloNumber = cachedData.premierRating;
+    const firstPart = eloNumber.slice(0, -3); // Erste Ziffern
+    const lastThree = eloNumber.slice(-3); // Letzte drei Ziffern
+
     res.send(`
         <html>
         <head>
@@ -141,9 +145,12 @@ app.get("/obs-overlay", (req, res) => {
                     text-align: center;
                     color: ${getEloColor(cachedData.premierRating)};
                     text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.75);
-                    -webkit-transform: skew(-15deg);
+                    webkit-transform: skew(-10deg);
                     transform: translateX(5px); /* 👈 **Verschiebt die Zahl um 5px nach rechts!** */
-                }
+               }
+                .elo-small {
+                    font-size: 36px; /* 👈 **Kleinere Größe für die letzten 3 Ziffern** */
+               }
                 .elo-background img {
                     width: 200px;
                     height: auto;
@@ -154,14 +161,14 @@ app.get("/obs-overlay", (req, res) => {
                     margin-left: 10px;
                 }
             </style>
-        </head>
+     </head>
         <body>
             <span></span>
             <div class="elo-container">
                 <div class="elo-background">
                     <img src="${getEloFrame(cachedData.premierRating)}" alt="Elo Frame">
                 </div>
-                <span class="elo-number">${cachedData.premierRating}</span>
+                <span class="elo-number">${firstPart}<span class="elo-small">${lastThree}</span></span>
             </div> 
             <span>| WINS: <span class="wins">${cachedData.premierWins}</span>/125</span>
         </body>
