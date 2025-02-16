@@ -148,15 +148,28 @@ app.get("/obs-overlay", (req, res) => {
                     position: absolute;
                     text-align: center;
                     color: ${getEloColor(cachedData.premierRating)};
-                    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.75);
+                    text-shadow: 2px 2px 5px rgba(255, 255, 255, 0.75);
                     transform: skew(-10deg) translateX(7px);
                 }
                 .elo-small {
                     font-size: 36px;
                 }
                 .elo-background img {
+		position: relative;
                     width: 200px;
                     height: auto;
+		}
+		.background-img {
+  		  width: 200px;
+   		 height: auto;
+   		 position: absolute;
+    		top: 0;
+    		left: 0;
+		}
+
+		.overlay-img {
+    			opacity: 0.5; /* Falls die zweite Schicht leicht durchsichtig sein soll */
+    			transform: translateY(5px); /* Falls die zweite Schicht leicht versetzt sein soll */
                 }
                 .wins {
                     color: #00ff00;
@@ -168,8 +181,9 @@ app.get("/obs-overlay", (req, res) => {
         <body>
             <div class="elo-container">
                 <div class="elo-background">
-                    <img src="${getEloFrame(cachedData.premierRating)}" alt="Elo Frame">
-                </div>
+   		 	<img class="background-img" src="${getEloFrame(cachedData.premierRating)}" alt="Elo Frame">
+   			<img class="background-img overlay-img" src="${getEloFrame(cachedData.premierRating)}" alt="Elo Frame">
+		</div>
                 <span class="elo-number">${firstPart}<span class="elo-small">${lastThree}</span></span>
             </div> 
             <span>| WINS: <span class="wins">${cachedData.premierWins}</span>/125</span>
