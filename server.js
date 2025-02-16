@@ -149,13 +149,12 @@ app.get("/obs-overlay", (req, res) => {
                 .elo-number {
                     font-size: 54px;
                     font-weight: bold;
-                    font-family: 'Helvetica Neue', sans-serif;
+                    font-family: 'Roboto', sans-serif;
                     position: absolute;
                     text-align: center;
                     color: ${getEloColor(cachedData.premierRating)};
-                    text-shadow: 0px 0px 20px rgba(255, 255, 255, 0.75);
+                    text-shadow: px 2px 2px rgba(0, 0, 0, 0.95);
                     transform: skew(-15deg) translateX(7px);
-		-webkit-text-stroke: 2px black;
                 }
                 .elo-small {
                     font-size: 36px;
