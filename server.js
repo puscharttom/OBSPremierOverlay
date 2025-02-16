@@ -134,7 +134,7 @@ app.get("/obs-overlay", (req, res) => {
                     align-items: center;
                     justify-content: center;
                     position: relative;
-                    width: 200px; 
+                    width: 200px;
                     height: auto;
                 }
                 .elo-number {
@@ -145,16 +145,11 @@ app.get("/obs-overlay", (req, res) => {
                     text-align: center;
                     color: ${getEloColor(cachedData.premierRating)};
                     text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.75);
-                    -webkit-transform: skew(-10deg);
-   			-moz-transform: skew(-10deg);
-			-ms-transform: skew(-10deg);
-  			-o-transform: skew(-10deg);
-   			transform: skew(-10deg);
-                    transform: translateX(7px); /* 👈 **Verschiebt die Zahl um 5px nach rechts!** */
-               }
+                    transform: skew(-10deg) translateX(7px);
+                }
                 .elo-small {
-                    font-size: 36px; /* 👈 **Kleinere Größe für die letzten 3 Ziffern** */
-               }
+                    font-size: 36px;
+                }
                 .elo-background img {
                     width: 200px;
                     height: auto;
@@ -165,9 +160,8 @@ app.get("/obs-overlay", (req, res) => {
                     margin-left: 10px;
                 }
             </style>
-     </head>
+        </head>
         <body>
-            <span></span>
             <div class="elo-container">
                 <div class="elo-background">
                     <img src="${getEloFrame(cachedData.premierRating)}" alt="Elo Frame">
