@@ -81,7 +81,7 @@ async function scrapePremierStats() {
             console.log(`✅ PREMIER-RATING: ${premierData.rating}`);
             console.log(`✅ PREMIER-WINS: ${premierData.wins}`);
 
-            // 🏆 **Daten in Cache speichern**
+            // 🏆 **Daten in Cache speichern (mit Tausendertrennzeichen)**
             cachedData = {
                 premierRating: formatNumber(premierData.rating),
                 premierWins: formatNumber(premierData.wins),
@@ -130,7 +130,7 @@ app.get("/obs-overlay", (req, res) => {
                     align-items: center;
                     justify-content: center;
                     position: relative;
-                    max-width: 200px; /* ✨ Setzt die max. Breite auf 200px */
+                    width: 200px; /* ✨ Breite fixiert */
                     height: auto;
                 }
                 .elo-number {
@@ -142,8 +142,8 @@ app.get("/obs-overlay", (req, res) => {
                     text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.75);
                 }
                 .elo-background {
-                    width: 100%; /* ✨ Skalierung proportional zur Breite */
-                    height: auto; /* ✨ Hält das Seitenverhältnis bei */
+                    width: 200px; /* ✨ Skalierung fixiert */
+                    height: auto;
                     background-image: url('${getEloFrame(cachedData.premierRating)}');
                     background-size: contain;
                     background-repeat: no-repeat;
@@ -190,6 +190,11 @@ function getEloFrame(rating) {
     if (elo >= 10000) return "https://static.csstats.gg/images/ranks/cs2/rating.rare.png";
     if (elo >= 5000) return "https://static.csstats.gg/images/ranks/cs2/rating.uncommon.png";
     return "https://static.csstats.gg/images/ranks/cs2/rating.common.png";
+}
+
+// 📊 **Zahlen mit Tausendertrennzeichen formatieren**
+function formatNumber(num) {
+    return num ? parseInt(num.replace(/[^0-9]/g, ""), 10).toLocaleString("de-DE") : "-";
 }
 
 // 🚀 **Server starten**
