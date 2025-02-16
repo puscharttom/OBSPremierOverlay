@@ -141,7 +141,7 @@ app.get("/obs-overlay", (req, res) => {
                     height: auto;
                 }
                 .elo-number {
-                    font-size: 48px;
+                    font-size: 54px;
                     font-weight: bold;
                     font-family: 'Helvetica Neue', sans-serif;
                     position: absolute;
@@ -205,7 +205,7 @@ function getEloFrame(rating) {
 
 // 📊 **Zahlen mit Tausendertrennzeichen formatieren**
 function formatNumber(num) {
-    return num ? parseInt(num.replace(/[^0-9]/g, ""), 10).toLocaleString("de-DE") : "-";
+    return num ? parseInt(num.replace(/[^0-9]/g, ""), 10).toLocaleString("en-US") : "-";
 }
 
 // 🚀 **Server starten**
