@@ -133,12 +133,12 @@ app.get("/obs-overlay", (req, res) => {
                     width: 100vw;
                 }
                 .elo-container {
-                    position: relative;
-                    width: 200px;
-                    height: auto;
                     display: flex;
                     align-items: center;
                     justify-content: center;
+                    position: relative;
+                    width: 220px;
+                    height: auto;
                 }
                 .elo-number {
                     font-size: 48px;
@@ -147,25 +147,15 @@ app.get("/obs-overlay", (req, res) => {
                     position: absolute;
                     text-align: center;
                     color: ${getEloColor(cachedData.premierRating)};
-                    text-shadow: 2px 2px 5px rgba(255, 255, 255, 0.75);
+                    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.75);
                     transform: skew(-10deg) translateX(7px);
                 }
                 .elo-small {
                     font-size: 36px;
                 }
-                .elo-background {
-                    position: relative;
-                    width: 200px;
-                }
-                .background-img {
-                    width: 200px;
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                }
-                .overlay-img {
-                    opacity: 0.5;
-                    transform: translateY(5px);
+                .elo-background img {
+                    width: 220px;
+                    height: auto;
                 }
                 .wins {
                     color: #00ff00;
@@ -177,11 +167,10 @@ app.get("/obs-overlay", (req, res) => {
         <body>
             <div class="elo-container">
                 <div class="elo-background">
-                    <img class="background-img" src="${getEloFrame(cachedData.premierRating)}">
-                    <img class="background-img overlay-img" src="${getEloFrame(cachedData.premierRating)}">
+                    <img src="${getEloFrame(cachedData.premierRating)}" alt="Elo Frame">
                 </div>
                 <span class="elo-number">${firstPart}<span class="elo-small">${lastThree}</span></span>
-            </div>
+            </div> 
             <span>| WINS: <span class="wins">${cachedData.premierWins}</span>/125</span>
         </body>
         </html>
@@ -218,14 +207,6 @@ function getEloFrame(rating) {
 function formatNumber(num) {
     return num ? parseInt(num.replace(/[^0-9]/g, ""), 10).toLocaleString("de-DE") : "-";
 }
-
-// 🎨 **API für OBS, um Daten dynamisch zu aktualisieren**
-app.get("/obs-overlay-data", (req, res) => {
-    res.json({
-        premierRating: cachedData.premierRating,
-        premierWins: cachedData.premierWins
-    });
-});
 
 // 🚀 **Server starten**
 app.listen(PORT, () => {
