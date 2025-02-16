@@ -141,7 +141,8 @@ app.get("/obs-overlay", (req, res) => {
                     text-align: center;
                     color: ${getEloColor(cachedData.premierRating)};
                     text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.75);
-                    -webkit-transform: skew(-10deg); /* 👈 **Hier wird die Zahl schräg gestellt!** */
+                    -webkit-transform: skew(-15deg);
+                    transform: translateX(5px); /* 👈 **Verschiebt die Zahl um 5px nach rechts!** */
                 }
                 .elo-background img {
                     width: 200px;
@@ -155,7 +156,7 @@ app.get("/obs-overlay", (req, res) => {
             </style>
         </head>
         <body>
-            <span>ELO:</span>
+            <span></span>
             <div class="elo-container">
                 <div class="elo-background">
                     <img src="${getEloFrame(cachedData.premierRating)}" alt="Elo Frame">
