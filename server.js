@@ -192,6 +192,11 @@ function getEloFrame(rating) {
     return "https://static.csstats.gg/images/ranks/cs2/rating.common.png";
 }
 
+// 📊 **Zahlen mit Tausendertrennzeichen formatieren**
+function formatNumber(num) {
+    return num ? parseInt(num.replace(/[^0-9]/g, ""), 10).toLocaleString("de-DE") : "-";
+}
+
 // 🚀 **Server starten**
 app.listen(PORT, () => {
     console.log(`🚀 OBS OVERLAY LÄUFT AUF PORT ${PORT}`);
