@@ -130,7 +130,7 @@ app.get("/obs-overlay", (req, res) => {
                     align-items: center;
                     justify-content: center;
                     position: relative;
-                    width: 200px; /* ✨ Breite fixiert */
+                    width: 200px; 
                     height: auto;
                 }
                 .elo-number {
@@ -142,7 +142,7 @@ app.get("/obs-overlay", (req, res) => {
                     text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.75);
                 }
                 .elo-background {
-                    width: 200px; /* ✨ Skalierung fixiert */
+                    width: 200px;
                     height: auto;
                     background-image: url('${getEloFrame(cachedData.premierRating)}');
                     background-size: contain;
@@ -170,6 +170,7 @@ app.get("/obs-overlay", (req, res) => {
 
 // 🎨 **Funktion für Elo-Farben**
 function getEloColor(rating) {
+    if (!rating || rating === "-") return "rgba(183,199,214,255)";
     const elo = parseInt(rating.replace(/[^0-9]/g, ""), 10) || 0;
     if (elo >= 30000) return "rgba(253,215,0,255)";
     if (elo >= 25000) return "rgba(236,74,72,255)";
@@ -182,6 +183,7 @@ function getEloColor(rating) {
 
 // 🎨 **Funktion für Elo-Rahmen**
 function getEloFrame(rating) {
+    if (!rating || rating === "-") return "https://static.csstats.gg/images/ranks/cs2/rating.common.png";
     const elo = parseInt(rating.replace(/[^0-9]/g, ""), 10) || 0;
     if (elo >= 30000) return "https://static.csstats.gg/images/ranks/cs2/rating.unusual.png";
     if (elo >= 25000) return "https://static.csstats.gg/images/ranks/cs2/rating.ancient.png";
