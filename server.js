@@ -81,7 +81,7 @@ async function scrapePremierStats() {
             console.log(`✅ PREMIER-RATING: ${premierData.rating}`);
             console.log(`✅ PREMIER-WINS: ${premierData.wins}`);
 
-            // 🏆 **Daten in Cache speichern, mit Uppercase und Tausendertrennzeichen**
+            // 🏆 **Daten in Cache speichern**
             cachedData = {
                 premierRating: formatNumber(premierData.rating),
                 premierWins: formatNumber(premierData.wins),
@@ -130,20 +130,23 @@ app.get("/obs-overlay", (req, res) => {
                     align-items: center;
                     justify-content: center;
                     position: relative;
-                    width: 100px;
-                    height: 100px;
+                    width: 280px;
+                    height: 120px;
                 }
                 .elo-number {
-                    font-size: 25px;
+                    font-size: 42px;
                     font-weight: bold;
                     position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
                     text-align: center;
                     color: ${getEloColor(cachedData.premierRating)};
                     text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.75);
                 }
                 .elo-background {
-                    width: 100px;
-                    height: 100px;
+                    width: 280px;
+                    height: 120px;
                     background-image: url('${getEloFrame(cachedData.premierRating)}');
                     background-size: contain;
                     background-repeat: no-repeat;
@@ -157,12 +160,12 @@ app.get("/obs-overlay", (req, res) => {
             </style>
         </head>
         <body>
-            <span></span>
+            <span>ELO:</span>
             <div class="elo-container">
                 <div class="elo-background"></div>
                 <span class="elo-number">${cachedData.premierRating}</span>
             </div> 
-            <span><p>  </p>| WINS: <span class="wins">${cachedData.premierWins}</span>/125</span>
+            <span>| WINS: <span class="wins">${cachedData.premierWins}</span>/125</span>
         </body>
         </html>
     `);
