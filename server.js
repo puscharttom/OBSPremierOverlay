@@ -130,23 +130,20 @@ app.get("/obs-overlay", (req, res) => {
                     align-items: center;
                     justify-content: center;
                     position: relative;
-                    width: 280px;
-                    height: 120px;
+                    width: 561px;
+                    height: 239px;
                 }
                 .elo-number {
                     font-size: 42px;
                     font-weight: bold;
                     position: absolute;
-                    top: 50%;
-                    left: 50%;
-                    transform: translate(-50%, -50%);
                     text-align: center;
                     color: ${getEloColor(cachedData.premierRating)};
                     text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.75);
                 }
                 .elo-background {
-                    width: 280px;
-                    height: 120px;
+                    width: 561px;
+                    height: 239px;
                     background-image: url('${getEloFrame(cachedData.premierRating)}');
                     background-size: contain;
                     background-repeat: no-repeat;
