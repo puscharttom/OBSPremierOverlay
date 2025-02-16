@@ -136,10 +136,12 @@ app.get("/obs-overlay", (req, res) => {
                 .elo-number {
                     font-size: 42px;
                     font-weight: bold;
+                    font-family: 'Helvetica Neue', sans-serif;
                     position: absolute;
                     text-align: center;
                     color: ${getEloColor(cachedData.premierRating)};
                     text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.75);
+                    -webkit-transform: skew(-10deg); /* 👈 **Hier wird die Zahl schräg gestellt!** */
                 }
                 .elo-background img {
                     width: 200px;
