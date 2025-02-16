@@ -123,11 +123,15 @@ app.get("/obs-overlay", (req, res) => {
                     font-size: 36px;
                     color: white;
                     background: transparent;
-                    text-align: left;
+                    text-align: center;
                     padding: 10px;
                     text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.75);
-                    display: flex;
-                    align-items: center;
+
+   			display: flex;
+    			align-items: center;  /* Zentriert vertikal */
+   			justify-content: center;  /* Zentriert horizontal */
+    			height: 100vh;  /* Stellt sicher, dass der Inhalt in der Mitte des Viewports ist */
+    			width: 100vw;
                 }
                 .elo-container {
                     display: flex;
@@ -204,6 +208,14 @@ function getEloFrame(rating) {
 function formatNumber(num) {
     return num ? parseInt(num.replace(/[^0-9]/g, ""), 10).toLocaleString("de-DE") : "-";
 }
+
+// 🎨 **API für OBS, um Daten dynamisch zu aktualisieren**
+app.get("/obs-overlay-data", (req, res) => {
+    res.json({
+        premierRating: cachedData.premierRating,
+        premierWins: cachedData.premierWins
+    });
+});
 
 // 🚀 **Server starten**
 app.listen(PORT, () => {
