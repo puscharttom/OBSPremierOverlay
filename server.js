@@ -134,7 +134,7 @@ app.get("/obs-overlay", (req, res) => {
                     height: 100px;
                 }
                 .elo-number {
-                    font-size: 30px;
+                    font-size: 25px;
                     font-weight: bold;
                     position: absolute;
                     text-align: center;
@@ -157,12 +157,12 @@ app.get("/obs-overlay", (req, res) => {
             </style>
         </head>
         <body>
-            <span>ELO:</span>
+            <span></span>
             <div class="elo-container">
                 <div class="elo-background"></div>
                 <span class="elo-number">${cachedData.premierRating}</span>
             </div> 
-            <span>| WINS: <span class="wins">${cachedData.premierWins}</span>/125</span>
+            <span>   | WINS: <span class="wins">${cachedData.premierWins}</span>/125</span>
         </body>
         </html>
     `);
