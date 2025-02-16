@@ -138,15 +138,19 @@ app.get("/obs-overlay", (req, res) => {
                     height: auto;
                 }
                 .elo-number {
-                    font-size: 42px;
+                    font-size: 48px;
                     font-weight: bold;
                     font-family: 'Helvetica Neue', sans-serif;
                     position: absolute;
                     text-align: center;
                     color: ${getEloColor(cachedData.premierRating)};
                     text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.75);
-                    webkit-transform: skew(-10deg);
-                    transform: translateX(5px); /* 👈 **Verschiebt die Zahl um 5px nach rechts!** */
+                    -webkit-transform: skew(-10deg);
+   			-moz-transform: skew(-10deg);
+			-ms-transform: skew(-10deg);
+  			-o-transform: skew(-10deg);
+   			transform: skew(-10deg);
+                    transform: translateX(7px); /* 👈 **Verschiebt die Zahl um 5px nach rechts!** */
                }
                 .elo-small {
                     font-size: 36px; /* 👈 **Kleinere Größe für die letzten 3 Ziffern** */
