@@ -158,7 +158,7 @@ app.get("/obs-overlay", (req, res) => {
                     height: auto;
                 }
                 .wins {
-                    color: #00ff00;
+                    color: #68904D;
                     text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.75);
                     margin-left: 10px;
                 }
