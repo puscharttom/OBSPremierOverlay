@@ -168,6 +168,18 @@ app.get("/obs-overlay", (req, res) => {
     `);
 });
 
+// 🎨 **Funktion für Elo-Farben**
+function getEloColor(rating) {
+    const elo = parseInt(rating.replace(/[^0-9]/g, ""), 10) || 0;
+    if (elo >= 30000) return "rgba(253,215,0,255)";
+    if (elo >= 25000) return "rgba(236,74,72,255)";
+    if (elo >= 20000) return "rgba(227,20,240,255)";
+    if (elo >= 15000) return "rgba(189,106,253,255)";
+    if (elo >= 10000) return "rgba(104,125,234,255)";
+    if (elo >= 5000) return "rgba(137,187,229,255)";
+    return "rgba(183,199,214,255)";
+}
+
 // 🎨 **Funktion für Elo-Rahmen**
 function getEloFrame(rating) {
     const elo = parseInt(rating.replace(/[^0-9]/g, ""), 10) || 0;
