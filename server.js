@@ -122,47 +122,47 @@ app.get("/obs-overlay", (req, res) => {
                     text-align: left;
                     padding: 10px;
                     text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.75);
+                    display: flex;
+                    align-items: center;
                 }
                 .elo-container {
-                    display: inline-block;
-                    position: relative;
-                    padding: 10px;
-                }
-                .elo-number {
-                    font-size: 36px;
-                    font-weight: bold;
-                    position: absolute;
-                    top: 50%;
-                    left: 50%;
-                    transform: translate(-50%, -50%);
-                    color: ${getEloColor(cachedData.premierRating)};
-                    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.75);
-                }
-                .elo-background {
-                    width: 80px;
-                    height: 80px;
-                    background-image: url('${getEloFrame(cachedData.premierRating)}');
-                    background-size: contain;
-                    background-repeat: no-repeat;
                     display: flex;
                     align-items: center;
                     justify-content: center;
                     position: relative;
+                    width: 100px;
+                    height: 100px;
+                }
+                .elo-number {
+                    font-size: 30px;
+                    font-weight: bold;
+                    position: absolute;
+                    text-align: center;
+                    color: ${getEloColor(cachedData.premierRating)};
+                    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.75);
+                }
+                .elo-background {
+                    width: 100px;
+                    height: 100px;
+                    background-image: url('${getEloFrame(cachedData.premierRating)}');
+                    background-size: contain;
+                    background-repeat: no-repeat;
+                    position: absolute;
                 }
                 .wins {
                     color: #00ff00;
                     text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.75);
+                    margin-left: 10px;
                 }
             </style>
         </head>
         <body>
-            <span>ELO: 
-                <div class="elo-container">
-                    <div class="elo-background"></div>
-                    <span class="elo-number">${cachedData.premierRating}</span>
-                </div> 
-                | WINS: <span class="wins">${cachedData.premierWins}</span>/125
-            </span>
+            <span>ELO:</span>
+            <div class="elo-container">
+                <div class="elo-background"></div>
+                <span class="elo-number">${cachedData.premierRating}</span>
+            </div> 
+            <span>| WINS: <span class="wins">${cachedData.premierWins}</span>/125</span>
         </body>
         </html>
     `);
@@ -190,12 +190,6 @@ function getEloFrame(rating) {
     if (elo >= 10000) return "https://static.csstats.gg/images/ranks/cs2/rating.rare.png";
     if (elo >= 5000) return "https://static.csstats.gg/images/ranks/cs2/rating.uncommon.png";
     return "https://static.csstats.gg/images/ranks/cs2/rating.common.png";
-}
-
-// 📊 **Funktion zur Formatierung der Zahlen**
-function formatNumber(num) {
-    if (!num) return "-";
-    return parseInt(num.replace(/[^0-9]/g, ""), 10).toLocaleString("de-DE");
 }
 
 // 🚀 **Server starten**
