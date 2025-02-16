@@ -153,7 +153,7 @@ app.get("/obs-overlay", (req, res) => {
                     position: absolute;
                     text-align: center;
                     color: ${getEloColor(cachedData.premierRating)};
-                    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.75);
+                    text-shadow: 0px 0px 10px rgba(255, 255, 255, 0.75);
                     transform: skew(-10deg) translateX(7px);
                 }
                 .elo-small {
