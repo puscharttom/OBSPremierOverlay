@@ -141,13 +141,9 @@ app.get("/obs-overlay", (req, res) => {
                     color: ${getEloColor(cachedData.premierRating)};
                     text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.75);
                 }
-                .elo-background {
+                .elo-background img {
                     width: 200px;
                     height: auto;
-                    background-image: url('${getEloFrame(cachedData.premierRating)}');
-                    background-size: contain;
-                    background-repeat: no-repeat;
-                    background-position: center;
                 }
                 .wins {
                     color: #00ff00;
@@ -159,7 +155,9 @@ app.get("/obs-overlay", (req, res) => {
         <body>
             <span>ELO:</span>
             <div class="elo-container">
-                <div class="elo-background"></div>
+                <div class="elo-background">
+                    <img src="${getEloFrame(cachedData.premierRating)}" alt="Elo Frame">
+                </div>
                 <span class="elo-number">${cachedData.premierRating}</span>
             </div> 
             <span>| WINS: <span class="wins">${cachedData.premierWins}</span>/125</span>
@@ -192,11 +190,6 @@ function getEloFrame(rating) {
     if (elo >= 10000) return "https://static.csstats.gg/images/ranks/cs2/rating.rare.png";
     if (elo >= 5000) return "https://static.csstats.gg/images/ranks/cs2/rating.uncommon.png";
     return "https://static.csstats.gg/images/ranks/cs2/rating.common.png";
-}
-
-// 📊 **Zahlen mit Tausendertrennzeichen formatieren**
-function formatNumber(num) {
-    return num ? parseInt(num.replace(/[^0-9]/g, ""), 10).toLocaleString("de-DE") : "-";
 }
 
 // 🚀 **Server starten**
