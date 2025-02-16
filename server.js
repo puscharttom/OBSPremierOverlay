@@ -88,15 +88,15 @@ async function scrapePremierStats() {
                 lastUpdated: new Date()
             };
         } else {
-            console.log("⚠ KEINE GÜLTIGEN DATEN GEFUNDEN, ERNEUTER VERSUCH IN 1 MINUTE...");
-            setTimeout(scrapePremierStats, 60 * 1000);
+            console.log("⚠ KEINE GÜLTIGEN DATEN GEFUNDEN, ERNEUTER VERSUCH IN 30 SEKUNDEN...");
+            setTimeout(scrapePremierStats, 30 * 1000);
         }
 
         await browser.close();
     } catch (error) {
         console.error("❌ FEHLER BEIM SCRAPEN:", error);
         if (browser) await browser.close();
-        setTimeout(scrapePremierStats, 60 * 1000);
+        setTimeout(scrapePremierStats, 30 * 1000);
     }
 }
 
@@ -147,7 +147,7 @@ app.get("/obs-overlay", (req, res) => {
                     background-image: url('${getEloFrame(cachedData.premierRating)}');
                     background-size: contain;
                     background-repeat: no-repeat;
-                    position: absolute;
+                    background-position: center;
                 }
                 .wins {
                     color: #00ff00;
