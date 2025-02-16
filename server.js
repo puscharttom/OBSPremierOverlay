@@ -126,20 +126,19 @@ app.get("/obs-overlay", (req, res) => {
                     text-align: center;
                     padding: 10px;
                     text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.75);
-
-   			display: flex;
-    			align-items: center;  /* Zentriert vertikal */
-   			justify-content: center;  /* Zentriert horizontal */
-    			height: 100vh;  /* Stellt sicher, dass der Inhalt in der Mitte des Viewports ist */
-    			width: 100vw;
-                }
-                .elo-container {
                     display: flex;
                     align-items: center;
                     justify-content: center;
+                    height: 100vh;
+                    width: 100vw;
+                }
+                .elo-container {
                     position: relative;
                     width: 200px;
                     height: auto;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
                 }
                 .elo-number {
                     font-size: 48px;
@@ -154,22 +153,19 @@ app.get("/obs-overlay", (req, res) => {
                 .elo-small {
                     font-size: 36px;
                 }
-                .elo-background img {
-		position: relative;
+                .elo-background {
+                    position: relative;
                     width: 200px;
-                    height: auto;
-		}
-		.background-img {
-  		  width: 200px;
-   		 height: auto;
-   		 position: absolute;
-    		top: 0;
-    		left: 0;
-		}
-
-		.overlay-img {
-    			opacity: 0.5; /* Falls die zweite Schicht leicht durchsichtig sein soll */
-    			transform: translateY(5px); /* Falls die zweite Schicht leicht versetzt sein soll */
+                }
+                .background-img {
+                    width: 200px;
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                }
+                .overlay-img {
+                    opacity: 0.5;
+                    transform: translateY(5px);
                 }
                 .wins {
                     color: #00ff00;
@@ -181,11 +177,11 @@ app.get("/obs-overlay", (req, res) => {
         <body>
             <div class="elo-container">
                 <div class="elo-background">
-   		 	<img class="background-img" src="${getEloFrame(cachedData.premierRating)}" alt="Elo Frame">
-   			<img class="background-img overlay-img" src="${getEloFrame(cachedData.premierRating)}" alt="Elo Frame">
-		</div>
+                    <img class="background-img" src="${getEloFrame(cachedData.premierRating)}">
+                    <img class="background-img overlay-img" src="${getEloFrame(cachedData.premierRating)}">
+                </div>
                 <span class="elo-number">${firstPart}<span class="elo-small">${lastThree}</span></span>
-            </div> 
+            </div>
             <span>| WINS: <span class="wins">${cachedData.premierWins}</span>/125</span>
         </body>
         </html>
