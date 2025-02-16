@@ -162,7 +162,7 @@ app.get("/obs-overlay", (req, res) => {
                 <div class="elo-background"></div>
                 <span class="elo-number">${cachedData.premierRating}</span>
             </div> 
-            <span>   | WINS: <span class="wins">${cachedData.premierWins}</span>/125</span>
+            <span><p>  </p>| WINS: <span class="wins">${cachedData.premierWins}</span>/125</span>
         </body>
         </html>
     `);
