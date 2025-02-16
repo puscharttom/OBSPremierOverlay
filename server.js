@@ -120,7 +120,7 @@ app.get("/obs-overlay", (req, res) => {
             <style>
                 body {
                     font-family: 'Roboto', sans-serif;
-                    font-size: 42px;
+                    font-size: 52px;
                     color: white;
                     background: transparent;
                     text-align: center;
