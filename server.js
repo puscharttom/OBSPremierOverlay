@@ -117,6 +117,12 @@ app.get("/obs-overlay", (req, res) => {
         <html>
         <head>
             <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap" rel="stylesheet">
+	<script>
+   		 	setTimeout(function() {
+        		location.reload();
+    		}, 30000); // 30 Sekunden Refresh
+	</script>
+
             <style>
                 body {
                     font-family: 'Roboto', sans-serif;
@@ -158,7 +164,7 @@ app.get("/obs-overlay", (req, res) => {
                     height: auto;
                 }
                 .wins {
-                    color: #68904D;
+                    color: #04bf00;
                     text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.75);
                     margin-left: 10px;
                 }
