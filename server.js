@@ -130,11 +130,11 @@ app.get("/obs-overlay", (req, res) => {
                     align-items: center;
                     justify-content: center;
                     position: relative;
-                    width: 200px;
+                    max-width: 200px; /* ✨ Setzt die max. Breite auf 200px */
                     height: auto;
                 }
                 .elo-number {
-                    font-size: 36px;
+                    font-size: 42px;
                     font-weight: bold;
                     position: absolute;
                     text-align: center;
@@ -142,8 +142,8 @@ app.get("/obs-overlay", (req, res) => {
                     text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.75);
                 }
                 .elo-background {
-                    width: 200px; /* Skaliert auf 200px */
-                    height: auto; /* Beibehaltung des Seitenverhältnisses */
+                    width: 100%; /* ✨ Skalierung proportional zur Breite */
+                    height: auto; /* ✨ Hält das Seitenverhältnis bei */
                     background-image: url('${getEloFrame(cachedData.premierRating)}');
                     background-size: contain;
                     background-repeat: no-repeat;
