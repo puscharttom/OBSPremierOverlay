@@ -131,7 +131,7 @@ app.get("/obs-overlay", (req, res) => {
                     background: transparent;
                     text-align: center;
                     padding: 10px;
-                    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.75);
+                    text-shadow: 3px 3px 0px rgba(0, 0, 0, 0.75);
                     display: flex;
                     align-items: center;
                     justify-content: center;
