@@ -10,8 +10,8 @@ const STEAM_ID = "76561198021323440";
 
 // 🔥 **Cache für gespeicherte Daten**
 let cachedData = {
-    premierRating: "LÄDT...",
-    premierWins: "LÄDT...",
+    premierRating: "-",
+    premierWins: "-",
     lastUpdated: null
 };
 
@@ -83,8 +83,8 @@ async function scrapePremierStats() {
 
             // 🏆 **Daten in Cache speichern, mit Uppercase und Tausendertrennzeichen**
             cachedData = {
-                premierRating: formatNumber(premierData.rating).toUpperCase(),
-                premierWins: formatNumber(premierData.wins).toUpperCase(),
+                premierRating: formatNumber(premierData.rating),
+                premierWins: formatNumber(premierData.wins),
                 lastUpdated: new Date()
             };
         } else {
@@ -121,7 +121,7 @@ app.get("/obs-overlay", (req, res) => {
                     background: transparent;
                     text-align: left;
                     padding: 10px;
-                    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.75); /* ✅ Schatten für besseren Kontrast */
+                    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.75);
                 }
                 .elo-container {
                     display: inline-block;
@@ -136,7 +136,7 @@ app.get("/obs-overlay", (req, res) => {
                     left: 50%;
                     transform: translate(-50%, -50%);
                     color: ${getEloColor(cachedData.premierRating)};
-                    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.75); /* ✅ Schatten für die Zahl */
+                    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.75);
                 }
                 .elo-background {
                     width: 80px;
@@ -151,7 +151,7 @@ app.get("/obs-overlay", (req, res) => {
                 }
                 .wins {
                     color: #00ff00;
-                    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.75); /* ✅ Schatten für die Win-Zahl */
+                    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.75);
                 }
             </style>
         </head>
@@ -168,23 +168,22 @@ app.get("/obs-overlay", (req, res) => {
     `);
 });
 
-// 🎨 **Funktion für Elo-Farben**
-function getEloColor(rating) {
-    if (!rating) return "rgba(183,199,214,255)";
+// 🎨 **Funktion für Elo-Rahmen**
+function getEloFrame(rating) {
     const elo = parseInt(rating.replace(/[^0-9]/g, ""), 10) || 0;
-    if (elo >= 30000) return "rgba(253,215,0,255)";
-    if (elo >= 25000) return "rgba(236,74,72,255)";
-    if (elo >= 20000) return "rgba(227,20,240,255)";
-    if (elo >= 15000) return "rgba(189,106,253,255)";
-    if (elo >= 10000) return "rgba(104,125,234,255)";
-    if (elo >= 5000) return "rgba(137,187,229,255)";
-    return "rgba(183,199,214,255)";
+    if (elo >= 30000) return "https://static.csstats.gg/images/ranks/cs2/rating.unusual.png";
+    if (elo >= 25000) return "https://static.csstats.gg/images/ranks/cs2/rating.ancient.png";
+    if (elo >= 20000) return "https://static.csstats.gg/images/ranks/cs2/rating.legendary.png";
+    if (elo >= 15000) return "https://static.csstats.gg/images/ranks/cs2/rating.mythical.png";
+    if (elo >= 10000) return "https://static.csstats.gg/images/ranks/cs2/rating.rare.png";
+    if (elo >= 5000) return "https://static.csstats.gg/images/ranks/cs2/rating.uncommon.png";
+    return "https://static.csstats.gg/images/ranks/cs2/rating.common.png";
 }
 
-// 📊 **Funktion zur Formatierung der Zahlen mit Tausendertrennzeichen**
+// 📊 **Funktion zur Formatierung der Zahlen**
 function formatNumber(num) {
-    if (!num) return "LÄDT...";
-    return parseInt(num.replace(/[^0-9]/g, ""), 10).toLocaleString("de-DE"); // Entfernt falsche Zeichen & formatiert
+    if (!num) return "-";
+    return parseInt(num.replace(/[^0-9]/g, ""), 10).toLocaleString("de-DE");
 }
 
 // 🚀 **Server starten**
