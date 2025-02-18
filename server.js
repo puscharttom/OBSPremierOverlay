@@ -120,7 +120,7 @@ app.get("/obs-overlay", (req, res) => {
 	<script>
    		 	setTimeout(function() {
         		location.reload();
-    		}, 500); // 30 Sekunden Refresh
+    		}, 5000); // 30 Sekunden Refresh
 	</script>
 
 <script>
