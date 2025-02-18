@@ -100,10 +100,10 @@ async function scrapePremierStats() {
     }
 }
 
-// 🔄 **Automatische Updates alle 30 Minuten**
+// 🔄 **Automatische Updates alle 10 Minuten**
 async function autoUpdate() {
     await scrapePremierStats();
-    setInterval(scrapePremierStats, 30 * 60 * 1000);
+    setInterval(scrapePremierStats, 10 * 60 * 1000);
 }
 autoUpdate();
 
@@ -120,7 +120,7 @@ app.get("/obs-overlay", (req, res) => {
 	<script>
    		 	setTimeout(function() {
         		location.reload();
-    		}, 30000); // 30 Sekunden Refresh
+    		}, 500); // 30 Sekunden Refresh
 	</script>
 
 <script>
@@ -158,12 +158,12 @@ app.get("/obs-overlay", (req, res) => {
                 let newWins = parseInt(data.premierWins.replace(/,/g, ""), 10) || 0;
 
                 if (newElo !== currentElo) {
-                    animateNumber(document.getElementById("elo-number"), currentElo, newElo, 2000);
+                    animateNumber(document.getElementById("elo-number"), currentElo, newElo, 4000);
                     currentElo = newElo;
                 }
 
                 if (newWins !== currentWins) {
-                    animateNumber(document.getElementById("wins-number"), currentWins, newWins, 2000);
+                    animateNumber(document.getElementById("wins-number"), currentWins, newWins, 4000);
                     currentWins = newWins;
                 }
             })
