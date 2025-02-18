@@ -126,9 +126,11 @@ app.get("/obs-overlay", (req, res) => {
 <script>
     let currentElo = 0;
     let currentWins = 0;
-    let testMode = true; // Testmodus ist anfangs aktiv
+    let testMode = true; // ✅ Testmodus startet aktiv
 
     function animateNumber(element, start, end, duration, callback) {
+        if (!testMode && start === 10000) return; // ✅ Testanimation blockieren, wenn sie beendet werden soll
+
         let range = end - start;
         let stepTime = Math.abs(Math.floor(duration / range));
         let startTime = performance.now();
@@ -140,12 +142,12 @@ app.get("/obs-overlay", (req, res) => {
 
             if ((range > 0 && value >= end) || (range < 0 && value <= end)) {
                 value = end;
-                if (callback) callback(); // Falls eine Rückanimation erfolgen soll
+                if (callback) callback();
             }
 
             element.innerText = value.toLocaleString("en-US");
 
-            if (value !== end) {
+            if (value !== end && testMode) {
                 requestAnimationFrame(step);
             }
         }
@@ -153,14 +155,14 @@ app.get("/obs-overlay", (req, res) => {
     }
 
     function testAnimation() {
-        if (!testMode) return; // Wenn der Testmodus deaktiviert wurde, nicht erneut starten
+        if (!testMode) return; // ✅ Stoppt die Testanimation sofort, wenn testMode = false ist
 
         let eloElement = document.getElementById("elo-number");
 
         animateNumber(eloElement, 10000, 35000, 2000, () => {
-            if (!testMode) return; // **Hier nochmals prüfen, ob Testmodus gestoppt wurde**
+            if (!testMode) return; // ✅ Testmodus nochmals prüfen, bevor zurück animiert wird
             animateNumber(eloElement, 35000, 10000, 2000, () => {
-                if (testMode) testAnimation(); // Nur wiederholen, wenn Testmodus noch aktiv ist
+                if (testMode) testAnimation();
             });
         });
     }
@@ -172,8 +174,8 @@ app.get("/obs-overlay", (req, res) => {
                 let newElo = parseInt(data.premierRating.replace(/,/g, ""), 10) || 0;
                 let newWins = parseInt(data.premierWins.replace(/,/g, ""), 10) || 0;
 
-                if (newElo > 0) {
-                    testMode = false; // **Sobald echte Daten ankommen, Testmodus deaktivieren**
+                if (newElo > 0 && testMode) { 
+                    testMode = false; // ✅ Testmodus ausschalten, sobald echte Daten da sind
                 }
 
                 if (newElo !== currentElo) {
@@ -189,8 +191,8 @@ app.get("/obs-overlay", (req, res) => {
             .catch(err => console.error("❌ Fehler beim Abrufen der Daten:", err));
     }
 
-    setTimeout(testAnimation, 1000); // Starte den Testmodus nach 1 Sekunde
-    setInterval(updateData, 5000);
+    setTimeout(testAnimation, 1000); // ✅ Testanimation startet nach 1 Sekunde
+    setInterval(updateData, 5000); // ✅ Echte Daten alle 5 Sekunden abrufen
 </script>
 
 
