@@ -126,10 +126,10 @@ app.get("/obs-overlay", (req, res) => {
 <script>
     let currentElo = 0;
     let currentWins = 0;
-    let testMode = true; // ✅ Testmodus startet aktiv
+    let testMode = true; // ✅ Start in test mode
 
     function animateNumber(element, start, end, duration, callback) {
-        if (!testMode && start === 10000) return; // ✅ Testanimation blockieren, wenn sie beendet werden soll
+        if (!testMode && start === 10000) return; // ✅ Blocks test animation if real data is available
 
         let range = end - start;
         let stepTime = Math.abs(Math.floor(duration / range));
@@ -154,15 +154,15 @@ app.get("/obs-overlay", (req, res) => {
         requestAnimationFrame(step);
     }
 
-    function testAnimation() {
-        if (!testMode) return; // ✅ Stoppt die Testanimation sofort, wenn testMode = false ist
+    function startTestAnimation() {
+        if (!testMode) return; // ✅ Stops immediately if test mode is off
 
         let eloElement = document.getElementById("elo-number");
 
         animateNumber(eloElement, 10000, 35000, 2000, () => {
-            if (!testMode) return; // ✅ Testmodus nochmals prüfen, bevor zurück animiert wird
+            if (!testMode) return; // ✅ Prevents running again once real data is set
             animateNumber(eloElement, 35000, 10000, 2000, () => {
-                if (testMode) testAnimation();
+                if (testMode) startTestAnimation(); // ✅ Only loop if test mode is still active
             });
         });
     }
@@ -175,25 +175,29 @@ app.get("/obs-overlay", (req, res) => {
                 let newWins = parseInt(data.premierWins.replace(/,/g, ""), 10) || 0;
 
                 if (newElo > 0 && testMode) { 
-                    testMode = false; // ✅ Testmodus ausschalten, sobald echte Daten da sind
+                    testMode = false; // ✅ Permanently disable test mode
+                    console.log("🚀 Real data received! Stopping test animation.");
                 }
 
-                if (newElo !== currentElo) {
-                    animateNumber(document.getElementById("elo-number"), currentElo, newElo, 2000);
-                    currentElo = newElo;
-                }
+                if (!testMode) { // ✅ Only update numbers if test mode is OFF
+                    if (newElo !== currentElo) {
+                        animateNumber(document.getElementById("elo-number"), currentElo, newElo, 2000);
+                        currentElo = newElo;
+                    }
 
-                if (newWins !== currentWins) {
-                    animateNumber(document.getElementById("wins-number"), currentWins, newWins, 2000);
-                    currentWins = newWins;
+                    if (newWins !== currentWins) {
+                        animateNumber(document.getElementById("wins-number"), currentWins, newWins, 2000);
+                        currentWins = newWins;
+                    }
                 }
             })
-            .catch(err => console.error("❌ Fehler beim Abrufen der Daten:", err));
+            .catch(err => console.error("❌ Error fetching data:", err));
     }
 
-    setTimeout(testAnimation, 1000); // ✅ Testanimation startet nach 1 Sekunde
-    setInterval(updateData, 5000); // ✅ Echte Daten alle 5 Sekunden abrufen
+    setTimeout(startTestAnimation, 1000); // ✅ Start test animation only once
+    setInterval(updateData, 5000); // ✅ Real data updates every 5 seconds
 </script>
+
 
 
 
