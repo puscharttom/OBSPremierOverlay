@@ -230,7 +230,7 @@ app.get("/obs-overlay", (req, res) => {
                 </div>
                 <span class="elo-number" id="elo-number">${firstPart}<span class="elo-small">${lastThree}</span></span>
             </div> 
-            <span>| WINS: <span id="wins-number" class="wins">${cachedData.premierWins}</span>
+            <span> | WINS: <span id="wins-number" class="wins">${cachedData.premierWins}/125</span>
         </body>
         </html>
     `);
