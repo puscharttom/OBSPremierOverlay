@@ -10,8 +10,8 @@ const STEAM_ID = "76561198021323440";
 
 // 🔥 **Cache für gespeicherte Daten**
 let cachedData = {
-    premierRating: "10000",
-    premierWins: "10000",
+    premierRating: "10,000",
+    premierWins: "0",
     lastUpdated: null
 };
 
