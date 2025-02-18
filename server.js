@@ -126,7 +126,7 @@ app.get("/obs-overlay", (req, res) => {
 <script>
     let currentElo = 0;
     let currentWins = 0;
-    let testMode = false; // 👈 Variable für den Testmodus
+    let testMode = true; // Testmodus standardmäßig aktiv
 
     function animateNumber(element, start, end, duration, callback) {
         let range = end - start;
@@ -153,12 +153,13 @@ app.get("/obs-overlay", (req, res) => {
     }
 
     function testAnimation() {
+        if (!testMode) return; // Falls der Testmodus bereits deaktiviert wurde, nicht erneut starten
+
         let eloElement = document.getElementById("elo-number");
-        testMode = true;
 
         animateNumber(eloElement, 10000, 35000, 2000, () => {
             animateNumber(eloElement, 35000, 10000, 2000, () => {
-                testMode = false;
+                if (testMode) testAnimation(); // Nur wiederholen, wenn der Testmodus nicht gestoppt wurde
             });
         });
     }
@@ -170,16 +171,16 @@ app.get("/obs-overlay", (req, res) => {
                 let newElo = parseInt(data.premierRating.replace(/,/g, ""), 10) || 0;
                 let newWins = parseInt(data.premierWins.replace(/,/g, ""), 10) || 0;
 
-                if (newElo === 0 && !testMode) {
-                    testAnimation(); // 👈 Starte die Testanimation, wenn noch keine echten Daten da sind
+                if (newElo > 0) {
+                    testMode = false; // Testmodus deaktivieren, sobald echte Daten vorhanden sind
                 }
 
-                if (newElo !== currentElo && !testMode) {
+                if (newElo !== currentElo) {
                     animateNumber(document.getElementById("elo-number"), currentElo, newElo, 2000);
                     currentElo = newElo;
                 }
 
-                if (newWins !== currentWins && !testMode) {
+                if (newWins !== currentWins) {
                     animateNumber(document.getElementById("wins-number"), currentWins, newWins, 2000);
                     currentWins = newWins;
                 }
@@ -187,9 +188,10 @@ app.get("/obs-overlay", (req, res) => {
             .catch(err => console.error("❌ Fehler beim Abrufen der Daten:", err));
     }
 
-    setTimeout(testAnimation, 1000); // 👈 Starte den Testlauf nach 1 Sekunde
+    setTimeout(testAnimation, 1000); // Starte den Testlauf nach 1 Sekunde
     setInterval(updateData, 5000);
 </script>
+
 
 
             <style>
