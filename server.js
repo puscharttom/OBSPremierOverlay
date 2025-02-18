@@ -126,11 +126,8 @@ app.get("/obs-overlay", (req, res) => {
 <script>
     let currentElo = 0;
     let currentWins = 0;
-    let testMode = true; // ✅ Start in test mode
 
-    function animateNumber(element, start, end, duration, callback) {
-        if (!testMode && start === 10000) return; // ✅ Blocks test animation if real data is available
-
+    function animateNumber(element, start, end, duration) {
         let range = end - start;
         let stepTime = Math.abs(Math.floor(duration / range));
         let startTime = performance.now();
@@ -142,29 +139,15 @@ app.get("/obs-overlay", (req, res) => {
 
             if ((range > 0 && value >= end) || (range < 0 && value <= end)) {
                 value = end;
-                if (callback) callback();
             }
 
             element.innerText = value.toLocaleString("en-US");
 
-            if (value !== end && testMode) {
+            if (value !== end) {
                 requestAnimationFrame(step);
             }
         }
         requestAnimationFrame(step);
-    }
-
-    function startTestAnimation() {
-        if (!testMode) return; // ✅ Stops immediately if test mode is off
-
-        let eloElement = document.getElementById("elo-number");
-
-        animateNumber(eloElement, 10000, 35000, 2000, () => {
-            if (!testMode) return; // ✅ Prevents running again once real data is set
-            animateNumber(eloElement, 35000, 10000, 2000, () => {
-                if (testMode) startTestAnimation(); // ✅ Only loop if test mode is still active
-            });
-        });
     }
 
     function updateData() {
@@ -174,27 +157,19 @@ app.get("/obs-overlay", (req, res) => {
                 let newElo = parseInt(data.premierRating.replace(/,/g, ""), 10) || 0;
                 let newWins = parseInt(data.premierWins.replace(/,/g, ""), 10) || 0;
 
-                if (newElo > 0 && testMode) { 
-                    testMode = false; // ✅ Permanently disable test mode
-                    console.log("🚀 Real data received! Stopping test animation.");
+                if (newElo !== currentElo) {
+                    animateNumber(document.getElementById("elo-number"), currentElo, newElo, 2000);
+                    currentElo = newElo;
                 }
 
-                if (!testMode) { // ✅ Only update numbers if test mode is OFF
-                    if (newElo !== currentElo) {
-                        animateNumber(document.getElementById("elo-number"), currentElo, newElo, 2000);
-                        currentElo = newElo;
-                    }
-
-                    if (newWins !== currentWins) {
-                        animateNumber(document.getElementById("wins-number"), currentWins, newWins, 2000);
-                        currentWins = newWins;
-                    }
+                if (newWins !== currentWins) {
+                    animateNumber(document.getElementById("wins-number"), currentWins, newWins, 2000);
+                    currentWins = newWins;
                 }
             })
             .catch(err => console.error("❌ Error fetching data:", err));
     }
 
-    setTimeout(startTestAnimation, 1000); // ✅ Start test animation only once
     setInterval(updateData, 5000); // ✅ Real data updates every 5 seconds
 </script>
 
