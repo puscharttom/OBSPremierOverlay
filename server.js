@@ -10,8 +10,8 @@ const STEAM_ID = "76561198021323440";
 
 // 🔥 **Cache für gespeicherte Daten**
 let cachedData = {
-    premierRating: "-",
-    premierWins: "-",
+    premierRating: "10000",
+    premierWins: "10000",
     lastUpdated: null
 };
 
@@ -123,6 +123,57 @@ app.get("/obs-overlay", (req, res) => {
     		}, 30000); // 30 Sekunden Refresh
 	</script>
 
+<script>
+    let currentElo = 0;
+    let currentWins = 0;
+
+    function animateNumber(element, start, end, duration) {
+        let range = end - start;
+        let stepTime = Math.abs(Math.floor(duration / range));
+        let startTime = performance.now();
+
+        function step() {
+            let elapsedTime = performance.now() - startTime;
+            let progress = elapsedTime / duration;
+            let value = Math.round(start + (range * progress));
+
+            if ((range > 0 && value >= end) || (range < 0 && value <= end)) {
+                value = end;
+            }
+
+            element.innerText = value.toLocaleString("en-US");
+
+            if (value !== end) {
+                requestAnimationFrame(step);
+            }
+        }
+        requestAnimationFrame(step);
+    }
+
+    function updateData() {
+        fetch("/obs-overlay-data")
+            .then(response => response.json())
+            .then(data => {
+                let newElo = parseInt(data.premierRating.replace(/,/g, ""), 10) || 0;
+                let newWins = parseInt(data.premierWins.replace(/,/g, ""), 10) || 0;
+
+                if (newElo !== currentElo) {
+                    animateNumber(document.getElementById("elo-number"), currentElo, newElo, 3000);
+                    currentElo = newElo;
+                }
+
+                if (newWins !== currentWins) {
+                    animateNumber(document.getElementById("wins-number"), currentWins, newWins, 1000);
+                    currentWins = newWins;
+                }
+            })
+            .catch(err => console.error("❌ Fehler beim Abrufen der Daten:", err));
+    }
+
+    setInterval(updateData, 5000);
+</script>
+
+
             <style>
                 body {
                     font-family: 'Roboto', sans-serif;
@@ -175,9 +226,9 @@ app.get("/obs-overlay", (req, res) => {
                 <div class="elo-background">
                     <img src="${getEloFrame(cachedData.premierRating)}" alt="Elo Frame">
                 </div>
-                <span class="elo-number">${firstPart}<span class="elo-small">${lastThree}</span></span>
+                <span class="elo-number" id="elo-number">${firstPart}<span class="elo-small">${lastThree}</span></span>
             </div> 
-            <span>| WINS: <span class="wins">${cachedData.premierWins}</span>/125</span>
+            <span>| WINS: <span id="wins-number" class="wins">${cachedData.premierWins}</span>
         </body>
         </html>
     `);
