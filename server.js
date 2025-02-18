@@ -10,8 +10,8 @@ const STEAM_ID = "76561198021323440";
 
 // 🔥 **Cache für gespeicherte Daten**
 let cachedData = {
-    premierRating: "10,000",
-    premierWins: "0",
+    premierRating: "-",
+    premierWins: "-",
     lastUpdated: null
 };
 
@@ -126,8 +126,9 @@ app.get("/obs-overlay", (req, res) => {
 <script>
     let currentElo = 0;
     let currentWins = 0;
+    let testMode = false; // 👈 Variable für den Testmodus
 
-    function animateNumber(element, start, end, duration) {
+    function animateNumber(element, start, end, duration, callback) {
         let range = end - start;
         let stepTime = Math.abs(Math.floor(duration / range));
         let startTime = performance.now();
@@ -139,6 +140,7 @@ app.get("/obs-overlay", (req, res) => {
 
             if ((range > 0 && value >= end) || (range < 0 && value <= end)) {
                 value = end;
+                if (callback) callback(); // Falls es eine Rückanimation geben soll
             }
 
             element.innerText = value.toLocaleString("en-US");
@@ -150,6 +152,17 @@ app.get("/obs-overlay", (req, res) => {
         requestAnimationFrame(step);
     }
 
+    function testAnimation() {
+        let eloElement = document.getElementById("elo-number");
+        testMode = true;
+
+        animateNumber(eloElement, 10000, 35000, 2000, () => {
+            animateNumber(eloElement, 35000, 10000, 2000, () => {
+                testMode = false;
+            });
+        });
+    }
+
     function updateData() {
         fetch("/obs-overlay-data")
             .then(response => response.json())
@@ -157,19 +170,24 @@ app.get("/obs-overlay", (req, res) => {
                 let newElo = parseInt(data.premierRating.replace(/,/g, ""), 10) || 0;
                 let newWins = parseInt(data.premierWins.replace(/,/g, ""), 10) || 0;
 
-                if (newElo !== currentElo) {
-                    animateNumber(document.getElementById("elo-number"), currentElo, newElo, 3000);
+                if (newElo === 0 && !testMode) {
+                    testAnimation(); // 👈 Starte die Testanimation, wenn noch keine echten Daten da sind
+                }
+
+                if (newElo !== currentElo && !testMode) {
+                    animateNumber(document.getElementById("elo-number"), currentElo, newElo, 2000);
                     currentElo = newElo;
                 }
 
-                if (newWins !== currentWins) {
-                    animateNumber(document.getElementById("wins-number"), currentWins, newWins, 1000);
+                if (newWins !== currentWins && !testMode) {
+                    animateNumber(document.getElementById("wins-number"), currentWins, newWins, 2000);
                     currentWins = newWins;
                 }
             })
             .catch(err => console.error("❌ Fehler beim Abrufen der Daten:", err));
     }
 
+    setTimeout(testAnimation, 1000); // 👈 Starte den Testlauf nach 1 Sekunde
     setInterval(updateData, 5000);
 </script>
 
