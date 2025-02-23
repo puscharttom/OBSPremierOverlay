@@ -15,6 +15,9 @@ let cachedData = {
     lastUpdated: null
 };
 
+let retryCount = 0; // **💡 Retry-Zähler**
+const MAX_RETRIES = 20; // **🔄 Maximale Versuche (20x)**
+
 // 🚀 **Browser-Start-Funktion**
 async function startBrowser() {
     console.log("🔄 Starte Puppeteer...");
@@ -39,8 +42,13 @@ async function startBrowser() {
     }
 }
 
-// 🌍 **Scraper-Funktion für Premier Stats**
+// 🌍 **Scraper-Funktion für Premier Stats mit Retry-Limit**
 async function scrapePremierStats() {
+    if (retryCount >= MAX_RETRIES) {
+        console.log(`❌ MAXIMALE RETRIES (${MAX_RETRIES}) ERREICHT! KEIN NEUER VERSUCH.`);
+        return;
+    }
+
     let browser;
     try {
         browser = await startBrowser();
@@ -87,8 +95,11 @@ async function scrapePremierStats() {
                 premierWins: formatNumber(premierData.wins),
                 lastUpdated: new Date()
             };
+
+            retryCount = 0; // **✅ Reset Retry-Zähler**
         } else {
-            console.log("⚠ KEINE GÜLTIGEN DATEN GEFUNDEN, ERNEUTER VERSUCH IN 30 SEKUNDEN...");
+            retryCount++; // **🔄 Erhöhe Retry-Zähler**
+            console.log(`⚠ KEINE GÜLTIGEN DATEN GEFUNDEN, ERNEUTER VERSUCH (${retryCount}/${MAX_RETRIES}) in 30 Sekunden...`);
             setTimeout(scrapePremierStats, 30 * 1000);
         }
 
@@ -96,6 +107,7 @@ async function scrapePremierStats() {
     } catch (error) {
         console.error("❌ FEHLER BEIM SCRAPEN:", error);
         if (browser) await browser.close();
+        retryCount++; // **🔄 Erhöhe Retry-Zähler**
         setTimeout(scrapePremierStats, 30 * 1000);
     }
 }
