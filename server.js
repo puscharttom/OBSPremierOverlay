@@ -103,7 +103,7 @@ async function scrapePremierStats() {
 // 🔄 **Automatische Updates alle 10 Minuten**
 async function autoUpdate() {
     await scrapePremierStats();
-    setInterval(scrapePremierStats, 20 * 60 * 1000);
+    setInterval(scrapePremierStats, 30 * 60 * 1000);
 }
 autoUpdate();
 
